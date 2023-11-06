@@ -10,7 +10,7 @@ const Login = () => {
             {/* Image */}
             {/* Header */}
             {/* School Select */}
-            {/* Email Input - get slug and check domain in email*/}
+            {/* Email Input - get slug and check domain in email */}
             {/* Password Input */}
             {/* Login Button */}
             {/* Signup Button */}
