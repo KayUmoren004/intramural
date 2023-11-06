@@ -4,8 +4,8 @@
     "slug": "intramural",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/i2.png",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -14,6 +14,7 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "scheme":"gu-intramural",
     "ios": {
       "supportsTablet": true
     },
@@ -25,6 +26,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
