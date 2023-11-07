@@ -1,0 +1,38 @@
+diff --git a/node_modules/react-native/Libraries/Components/Keyboard/KeyboardAvoidingView.d.ts b/node_modules/react-native/Libraries/Components/Keyboard/KeyboardAvoidingView.d.ts
+index 42bff4a..cdcb501 100644
+--- a/node_modules/react-native/Libraries/Components/Keyboard/KeyboardAvoidingView.d.ts
++++ b/node_modules/react-native/Libraries/Components/Keyboard/KeyboardAvoidingView.d.ts
+@@ -26,6 +26,8 @@ export class KeyboardAvoidingView extends KeyboardAvoidingViewBase {}
+ export interface KeyboardAvoidingViewProps extends ViewProps {
+   behavior?: 'height' | 'position' | 'padding' | undefined;
+ 
++  ignoreIOSKeyboardWillChangeEvents?: boolean | undefined;
++
+   /**
+    * The style of the content container(View) when behavior is 'position'.
+    */
+diff --git a/node_modules/react-native/Libraries/Components/Keyboard/KeyboardAvoidingView.js b/node_modules/react-native/Libraries/Components/Keyboard/KeyboardAvoidingView.js
+index 9fb5637..6fdc28c 100644
+--- a/node_modules/react-native/Libraries/Components/Keyboard/KeyboardAvoidingView.js
++++ b/node_modules/react-native/Libraries/Components/Keyboard/KeyboardAvoidingView.js
+@@ -28,6 +28,8 @@ import * as React from 'react';
+ type Props = $ReadOnly<{|
+   ...ViewProps,
+ 
++  ignoreIOSKeyboardWillChangeEvents?: boolean | undefined;
++
+   /**
+    * Specify how to react to the presence of the keyboard.
+    */
+@@ -135,6 +137,11 @@ class KeyboardAvoidingView extends React.Component<Props, State> {
+     }
+ 
+     const {duration, easing, endCoordinates} = this._keyboardEvent;
++
++if(Platform.OS === 'ios' && duration === 0 && !!this.props.ignoreIOSKeyboardWillChangeEvents ) {
++      return;
++}
++
+     const height = await this._relativeKeyboardHeight(endCoordinates);
+ 
+     if (this.state.bottom === height) {

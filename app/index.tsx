@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { Text, View } from "react-native";
 
 const Index = () => {
-
   const segments = useSegments();
   const router = useRouter();
 
@@ -13,14 +12,7 @@ const Index = () => {
 
   const { initialized, isLoggedIn } = AuthStore.useState();
 
-  const params = useLocalSearchParams<{school?: string}>();
-
-  
-
-  console.log("segments", segments);
-  console.log("navigationState", navigationState);
-  console.log("initialized", initialized);
-  console.log("params", params)
+  const params = useLocalSearchParams<{ school?: string }>();
 
   React.useEffect(() => {
     if (!navigationState?.key || !initialized) return;
@@ -40,10 +32,18 @@ const Index = () => {
       // go to tabs root.
       // router.replace("/(tabs)/home");
       console.log("logged in");
-      router.replace("/(protected)/hws/dashboard")
+      router.replace("/(protected)/hws/dashboard");
     }
   }, [segments, navigationState?.key, initialized]);
 
-  return <View>{!navigationState?.key ? <Text className="text-text dark:text-text-dark">LOADING...</Text> : <></>}</View>;
+  return (
+    <View>
+      {!navigationState?.key ? (
+        <Text className="text-text dark:text-text-dark">LOADING...</Text>
+      ) : (
+        <></>
+      )}
+    </View>
+  );
 };
 export default Index;

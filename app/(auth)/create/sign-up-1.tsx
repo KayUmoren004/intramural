@@ -1,12 +1,11 @@
-import { Text, View, Modal, TouchableOpacity, Alert } from "react-native";
-import { AuthStore, appSignIn, getSchoolList } from "../../store";
+import { Text, View, Modal, TouchableOpacity } from "react-native";
+import { AuthStore, appSignIn, getSchoolList } from "../../../store";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import useColor from "../../src/lib/colors/useColors";
-import { validateLogin } from "../../src/lib/forms/useValidation";
-import Picker from "../../src/components/ui/picker/Picker";
+import useColor from "../../../src/lib/colors/useColors";
+import Picker from "../../../src/components/ui/picker/Picker";
 import {
   Formik,
   FormikHelpers,
@@ -17,14 +16,15 @@ import {
   ErrorMessage,
 } from "formik";
 import { Input } from "@rneui/themed";
-import { ErrorMessages } from "../../src/components/ui/Errors";
-import { AuthButton } from "../../src/components/auth/AuthButton";
-import Loading from "../../src/components/ui/Loading";
+import { ErrorMessages } from "../../../src/components/ui/Errors";
+import { AuthButton } from "../../../src/components/auth/AuthButton";
+import Loading from "../../../src/components/ui/Loading";
+import { validateSignUp } from "../../../src/lib/forms/useValidation";
 
 type ValueType = {
   school: Item;
   email: string;
-  password: string;
+  name: string;
 };
 
 type Item = {
@@ -37,15 +37,14 @@ const items = Array.from({ length: 50 }, (_, index) => ({
   value: `school${index + 1}.edu`,
 }));
 
-const Login = () => {
+const SignUp = () => {
   // Hooks
   const Colors = useColor();
 
   // Validation
   const [school, setSchool] = useState<Item>({ label: "", value: "" });
-  const { LoginSchema } = validateLogin(school?.value ?? "");
-
   const [schoolList, setSchoolList] = useState([]);
+  const { signUpSchema1 } = validateSignUp(school?.value ?? "");
 
   // State
   const [loading, setLoading] = useState<boolean>(false);
@@ -65,38 +64,26 @@ const Login = () => {
   }, []);
 
   // Auth Flow
-  const AuthFlow = async (values: ValueType) => {
-    // console.log(values);
-    const { email, password, school } = values;
-    const { label, value } = school;
-
-    const slug = value.split(".")[0];
-
+  const AuthFlow = (values: ValueType) => {
     setLoading(true);
 
+    const { name, email, school } = values;
+    const data = {
+      name,
+      email,
+      school_value: school.value,
+      school_label: school.label,
+    };
+
     try {
-      const res = await appSignIn(email, password);
-      if (res?.user) {
-        router.replace(`/(protected)/${slug}/dashboard`);
-      } else {
-        console.log("Error @Login.AuthFlow: ", res);
-        Alert.alert("Login Error", res.error?.message);
-      }
-    } catch (error) {
-      console.log("Error @Login.AuthFlow: ", error);
+      router.push({ pathname: "/create/sign-up-2", params: data });
+    } catch (err: any) {
+      console.log("Error @SignUp.AuthFlow: ", err.message);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
-
-  // Conditional rendering statement to wait for school list to populate
-  if (schoolList.length === 0) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading school list...</Text>
-      </View>
-    );
-  }
 
   return (
     <View className="flex-1 justify-between bg-background-light dark:bg-background-dark">
@@ -111,16 +98,16 @@ const Login = () => {
           justifyContent: "center",
         }}
       >
-        <Feather name="key" size={100} color={Colors.PRIMARY} />
+        <Feather name="user-plus" size={100} color={Colors.PRIMARY} />
       </View>
       <View>
         {/* Header */}
         <View className="flex flex-col items-start p-5">
           <Text className="text-text-light dark:text-text-dark text-3xl font-bold text-center">
-            Welcome Back!
+            Hello there!
           </Text>
           <Text className="text-text-light dark:text-text-dark text-xl text-center font-light">
-            Enter your credentials to continue
+            Let's get you signed up.
           </Text>
         </View>
 
@@ -133,9 +120,9 @@ const Login = () => {
                 value: "",
               },
               email: "",
-              password: "",
+              name: "",
             }}
-            validationSchema={LoginSchema}
+            validationSchema={signUpSchema1}
             onSubmit={(values) => {
               AuthFlow(values);
             }}
@@ -145,10 +132,10 @@ const Login = () => {
                 String(props.errors.email) === "undefined"
                   ? ""
                   : String(props.errors.email);
-              const passwordError =
-                String(props.errors.password) === "undefined"
+              const nameError =
+                String(props.errors.name) === "undefined"
                   ? ""
-                  : String(props.errors.password);
+                  : String(props.errors.name);
               return (
                 <View>
                   {/* School Select - Modal */}
@@ -182,8 +169,34 @@ const Login = () => {
                       </Text>
                     </TouchableOpacity>
                   </View>
-                  {/* Email Input - get slug and check domain in email */}
 
+                  {/* Name */}
+                  <Input
+                    placeholder="First and Last Name"
+                    onChangeText={props.handleChange("name")}
+                    value={props.values.name}
+                    onSubmitEditing={(e: any) => props.handleSubmit}
+                    inputStyle={{
+                      color: Colors.TEXT,
+                      fontSize: 17,
+                    }}
+                    inputContainerStyle={{
+                      borderBottomColor: Colors.TEXT,
+                      borderBottomWidth: 1,
+                    }}
+                    errorMessage={nameError}
+                    leftIcon={{
+                      type: "feather",
+                      name: "user",
+                      color: Colors.PRIMARY,
+                    }}
+                    autoComplete="name"
+                    autoCapitalize="none"
+                  />
+                  {/* Spacer */}
+                  <View style={{ height: 10 }} />
+
+                  {/* Email Input - get slug and check domain in email */}
                   <Input
                     placeholder="Enter your email"
                     onChangeText={props.handleChange("email")}
@@ -205,70 +218,32 @@ const Login = () => {
                       color: Colors.PRIMARY,
                     }}
                     inputMode="email"
-                  />
-
-                  {/* Spacer */}
-                  <View style={{ height: 10 }} />
-                  {/* Password Input */}
-
-                  <Input
-                    placeholder="Enter your password"
-                    onChangeText={props.handleChange("password")}
-                    value={props.values.password}
-                    onSubmitEditing={(e: any) => props.handleSubmit}
-                    errorMessage={passwordError}
-                    inputStyle={{
-                      color: Colors.TEXT,
-                      fontSize: 17,
-                    }}
-                    inputContainerStyle={{
-                      borderBottomColor: Colors.TEXT,
-                      borderBottomWidth: 1,
-                    }}
-                    leftIcon={{
-                      type: "feather",
-                      name: "lock",
-                      color: Colors.PRIMARY,
-                    }}
                     autoCapitalize="none"
-                    secureTextEntry={true}
-                    textContentType="none"
-                    rightIcon={
-                      <TouchableOpacity
-                        onPress={() => router.push("/(auth)/actions/forgot")}
-                      >
-                        <Text
-                          style={{
-                            color: Colors.PRIMARY,
-                            fontSize: 17,
-                          }}
-                        >
-                          Forgot?
-                        </Text>
-                      </TouchableOpacity>
-                    }
                   />
 
                   {/* Spacer */}
                   <View style={{ height: 10 }} />
+
                   {/* Login Button */}
                   <View>
                     {/* Submit */}
                     {loading && <Loading />}
                     {!loading && (
-                      <AuthButton onPress={props.handleSubmit} label="Login" />
+                      <AuthButton
+                        disabled={school.label === "" || school.value === ""}
+                        onPress={props.handleSubmit}
+                        label="Next"
+                      />
                     )}
                   </View>
                   {/* Footer */}
                   <View className="flex flex-row justify-center w-full p-4">
                     <Text className="text-text-light dark:text-text-dark text-xl ">
-                      Don't have an account?{" "}
+                      Already have an account?{" "}
                     </Text>
-                    <TouchableOpacity
-                      onPress={() => router.replace("/create/sign-up-1")}
-                    >
+                    <TouchableOpacity onPress={() => router.replace("/login")}>
                       <Text className="text-primary-light dark:text-primary-dark text-xl font-bold">
-                        Sign up
+                        Login
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -282,4 +257,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
