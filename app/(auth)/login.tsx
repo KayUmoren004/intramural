@@ -21,6 +21,8 @@ import { ErrorMessages } from "../../src/components/ui/Errors";
 import { AuthButton } from "../../src/components/auth/AuthButton";
 import Loading from "../../src/components/ui/Loading";
 
+import * as SplashScreen from "expo-splash-screen";
+
 type ValueType = {
   school: Item;
   email: string;
@@ -61,6 +63,7 @@ const Login = () => {
     const s = getSchools();
     s.then((res) => {
       setSchoolList(res);
+      SplashScreen.hideAsync();
     });
   }, []);
 
@@ -91,11 +94,7 @@ const Login = () => {
 
   // Conditional rendering statement to wait for school list to populate
   if (schoolList.length === 0) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading school list...</Text>
-      </View>
-    );
+    SplashScreen.preventAutoHideAsync();
   }
 
   return (
@@ -103,14 +102,7 @@ const Login = () => {
       {/* Spacer */}
       <View />
       {/* Image */}
-      <View
-        style={{
-          flexDirection: "row",
-          padding: 10,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <View className="flex flex-row justify-center items-center p-2">
         <Feather name="key" size={100} color={Colors.PRIMARY} />
       </View>
       <View>
@@ -120,7 +112,9 @@ const Login = () => {
             Welcome Back!
           </Text>
           <Text className="text-text-light dark:text-text-dark text-xl text-center font-light">
-            Enter your credentials to continue
+            {school.label !== "" && school.value !== ""
+              ? "Enter your credentials to continue"
+              : "Select your school to continue"}
           </Text>
         </View>
 
@@ -182,83 +176,90 @@ const Login = () => {
                       </Text>
                     </TouchableOpacity>
                   </View>
-                  {/* Email Input - get slug and check domain in email */}
 
-                  <Input
-                    placeholder="Enter your email"
-                    onChangeText={props.handleChange("email")}
-                    value={props.values.email}
-                    onSubmitEditing={(e: any) => props.handleSubmit}
-                    textContentType="none"
-                    errorMessage={emailError}
-                    inputStyle={{
-                      color: Colors.TEXT,
-                      fontSize: 17,
-                    }}
-                    inputContainerStyle={{
-                      borderBottomColor: Colors.TEXT,
-                      borderBottomWidth: 1,
-                    }}
-                    leftIcon={{
-                      type: "feather",
-                      name: "at-sign",
-                      color: Colors.PRIMARY,
-                    }}
-                    inputMode="email"
-                  />
+                  {school.value !== "" && school.label !== "" ? (
+                    <>
+                      {/* Email Input - get slug and check domain in email */}
 
-                  {/* Spacer */}
-                  <View style={{ height: 10 }} />
-                  {/* Password Input */}
+                      <Input
+                        placeholder="Enter your email"
+                        onChangeText={props.handleChange("email")}
+                        value={props.values.email}
+                        onSubmitEditing={(e: any) => props.handleSubmit}
+                        textContentType="none"
+                        errorMessage={emailError}
+                        inputStyle={{
+                          color: Colors.TEXT,
+                          fontSize: 17,
+                        }}
+                        inputContainerStyle={{
+                          borderBottomColor: Colors.TEXT,
+                          borderBottomWidth: 1,
+                        }}
+                        leftIcon={{
+                          type: "feather",
+                          name: "at-sign",
+                          color: Colors.PRIMARY,
+                        }}
+                        inputMode="email"
+                        autoCapitalize="none"
+                      />
 
-                  <Input
-                    placeholder="Enter your password"
-                    onChangeText={props.handleChange("password")}
-                    value={props.values.password}
-                    onSubmitEditing={(e: any) => props.handleSubmit}
-                    errorMessage={passwordError}
-                    inputStyle={{
-                      color: Colors.TEXT,
-                      fontSize: 17,
-                    }}
-                    inputContainerStyle={{
-                      borderBottomColor: Colors.TEXT,
-                      borderBottomWidth: 1,
-                    }}
-                    leftIcon={{
-                      type: "feather",
-                      name: "lock",
-                      color: Colors.PRIMARY,
-                    }}
-                    autoCapitalize="none"
-                    secureTextEntry={true}
-                    textContentType="none"
-                    rightIcon={
-                      <TouchableOpacity
-                        onPress={() => router.push("/(auth)/actions/forgot")}
-                      >
-                        <Text
-                          style={{
-                            color: Colors.PRIMARY,
-                            fontSize: 17,
-                          }}
-                        >
-                          Forgot?
-                        </Text>
-                      </TouchableOpacity>
-                    }
-                  />
+                      {/* Spacer */}
+                      <View style={{ height: 10 }} />
+                      {/* Password Input */}
 
-                  {/* Spacer */}
-                  <View style={{ height: 10 }} />
-                  {/* Login Button */}
-                  <View>
-                    {/* Submit */}
-                    {loading && <Loading />}
-                    {!loading && (
-                      <AuthButton onPress={props.handleSubmit} label="Login" />
-                    )}
-                  </View>
+                      <Input
+                        placeholder="Enter your password"
+                        onChangeText={props.handleChange("password")}
+                        value={props.values.password}
+                        onSubmitEditing={(e: any) => props.handleSubmit}
+                        errorMessage={passwordError}
+                        inputStyle={{
+                          color: Colors.TEXT,
+                          fontSize: 17,
+                        }}
+                        inputContainerStyle={{
+                          borderBottomColor: Colors.TEXT,
+                          borderBottomWidth: 1,
+                        }}
+                        leftIcon={{
+                          type: "feather",
+                          name: "lock",
+                          color: Colors.PRIMARY,
+                        }}
+                        autoCapitalize="none"
+                        secureTextEntry={true}
+                        textContentType="none"
+                        rightIcon={
+                          <TouchableOpacity
+                            onPress={() =>
+                              router.push("/(auth)/actions/forgot")
+                            }
+                          >
+                            <Text className="text-primary-light dark:text-primary-dark text-xl font-bold text-center">
+                              Forgot?
+                            </Text>
+                          </TouchableOpacity>
+                        }
+                      />
+
+                      {/* Spacer */}
+                      <View style={{ height: 10 }} />
+                      {/* Login Button */}
+                      <View>
+                        {/* Submit */}
+                        {loading && <Loading />}
+                        {!loading && (
+                          <AuthButton
+                            onPress={props.handleSubmit}
+                            label="Login"
+                            disabled={!(props.isValid && props.dirty)}
+                          />
+                        )}
+                      </View>
+                    </>
+                  ) : null}
                   {/* Footer */}
                   <View className="flex flex-row justify-center w-full p-4">
                     <Text className="text-text-light dark:text-text-dark text-xl ">

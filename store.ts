@@ -59,11 +59,16 @@ type StoreType = {
   isLoggedIn: boolean;
   initialized: boolean;
   user: User | null | any;
+  slug: string | null;
 };
 
-// Type
 type schoolListType = {
   label: string;
+  value: string;
+};
+
+type updateUserData = {
+  field: string;
   value: string;
 };
 
@@ -71,7 +76,50 @@ export const AuthStore = new Store<StoreType>({
   isLoggedIn: false,
   initialized: false,
   user: null,
+  slug: null,
 });
+
+// Get User
+export const getCurrentUser = async () => {
+  try {
+    const user = auth.currentUser;
+    return { user };
+  } catch (e: any) {
+    return { error: e };
+  }
+};
+
+// Update User data - firestore
+export const updateUserData = async (data: updateUserData) => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const docRef = doc(db, "users", uid);
+    await updateDoc(docRef, {
+      [data.field]: data.value,
+    });
+    return { success: true };
+  } catch (e: any) {
+    return { error: e };
+  }
+};
+
+// Get User domain - firestore
+const getSlug = async () => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const docRef = doc(db, "users", uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const slug = data?.domain.split(".")[0];
+      return { slug };
+    } else {
+      return { slug: null };
+    }
+  } catch (e: any) {
+    return { error: e };
+  }
+};
 
 const unsub = onAuthStateChanged(auth, (user) => {
   console.log("onAuthStateChange", user);
@@ -79,6 +127,7 @@ const unsub = onAuthStateChanged(auth, (user) => {
     store.user = user;
     store.isLoggedIn = user ? true : false;
     store.initialized = true;
+    store.slug = user?.email ? user.email.split("@")[1].split(".")[0] : null;
   });
 });
 
@@ -177,6 +226,39 @@ export const appSignUp = async (user: any) => {
   }
 };
 
+// Reset Password
+export const appResetPassword = async (email: string) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return { success: true };
+  } catch (e: any) {
+    return { error: e };
+  }
+};
+
+// Verify User Email
+export const appVerifyEmail = async () => {
+  try {
+    await sendEmailVerification(auth.currentUser!);
+
+    // Update user data
+    const data: updateUserData = {
+      field: "emailVerified",
+      value: "true",
+    };
+
+    const updated = await updateUserData(data);
+
+    if (updated.success) {
+      return { success: true };
+    } else {
+      return { success: false };
+    }
+  } catch (e: any) {
+    return { error: e };
+  }
+};
+
 // Upload Profile Photo
 const uploadProfilePhoto = async (uri: any) => {
   const uid = auth.currentUser?.uid;
@@ -240,8 +322,6 @@ export const getSchoolList = async () => {
         value: doc.data().domain,
       });
     });
-
-    console.log("List: ", schoolList);
     return { schoolList };
   } catch (e: any) {
     return { error: e };

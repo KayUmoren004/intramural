@@ -10,9 +10,9 @@ const Index = () => {
 
   const navigationState = useRootNavigationState();
 
-  const { initialized, isLoggedIn } = AuthStore.useState();
+  const { initialized, isLoggedIn, slug, user } = AuthStore.useState();
 
-  const params = useLocalSearchParams<{ school?: string }>();
+  console.log("Slug: ", slug);
 
   React.useEffect(() => {
     if (!navigationState?.key || !initialized) return;
@@ -32,7 +32,7 @@ const Index = () => {
       // go to tabs root.
       // router.replace("/(tabs)/home");
       console.log("logged in");
-      router.replace("/(protected)/hws/dashboard");
+      router.replace(`/(protected)/${slug}/dashboard`);
     }
   }, [segments, navigationState?.key, initialized]);
 

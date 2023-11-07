@@ -43,10 +43,7 @@ export const validateLogin = (domain: string) => {
 
   // Forgot Password Schema
   const ForgotSchema = Yup.object().shape({
-    email: Yup.string()
-      .email("Invalid email")
-      .required("Required")
-      .matches(domainRegex, `Email must end with @${domain}`),
+    email: Yup.string().email("Invalid email").required("Required"),
   });
 
   // Return both schemas

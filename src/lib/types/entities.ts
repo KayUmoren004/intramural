@@ -11,7 +11,7 @@ export type School = {
   };
   createdAt: string;
   updatedAt: string;
-  admins: User[];
+  admins: String[];
   domain: string;
   slug: string;
 };

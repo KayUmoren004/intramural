@@ -150,12 +150,11 @@ const SignUp = () => {
         // router.push({ pathname: "/create/sign-up-2", params: values });
 
         const res = await appSignUp(fullUser);
-        console.log("res: ", res);
 
         const slug: string = data.school_value.split(".")[0] ?? "";
 
         if (res?.user) {
-          router.replace(`/(protected)/${slug}/dashboard`);
+          router.replace(`/actions/verify?slug=${slug}`);
         } else {
           console.log("Error @Login.AuthFlow: ", res);
           Alert.alert("Login Error", res.error?.message);
@@ -175,28 +174,9 @@ const SignUp = () => {
   return (
     <View className="flex-1 justify-between bg-background-light dark:bg-background-dark">
       {/* Top */}
-      <View
-        style={{
-          flexDirection: "row",
-          padding: 10,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              marginLeft: 10,
-            }}
-            onPress={() => router.back()}
-          >
+      <View className="flex flex-row justify-center items-center w-full p-2">
+        <View className="flex flex-row justify-between items-center w-full">
+          <TouchableOpacity className="ml-2" onPress={() => router.back()}>
             <View className="flex flex-row border-2 border-primary-light dark:border-primary-dark rounded-md w-12 h-12 items-center justify-center">
               <Ionicons
                 name="chevron-back"
@@ -250,76 +230,7 @@ const SignUp = () => {
               return (
                 <View>
                   {/* Profile Pic */}
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "100%",
-                      borderWidth: 1,
-                      borderColor: Colors.PRIMARY,
-                      borderRadius: 10,
-                      marginBottom: 10,
-                    }}
-                  >
-                    <TouchableOpacity
-                      // onPress={() => {
-                      //   console.log("Image Picker");
-                      // }}
-                      onPress={addProfilePhoto}
-                      style={{
-                        flex: 1,
-                        // justifyContent: "center",
-                        alignItems: "center",
-                        flexDirection: "row",
-                        width: "100%",
-                        padding: 10,
-                      }}
-                    >
-                      <View
-                        style={{
-                          borderRadius: 100,
-                          justifyContent: "center",
-                          alignItems: "center",
-                          borderWidth: 1,
-                          borderColor: Colors.PRIMARY,
-                          padding: 5,
-                        }}
-                      >
-                        {profilePhoto ? (
-                          <Image
-                            source={{ uri: String(profilePhoto) }}
-                            style={{
-                              width: 50,
-                              height: 50,
-                              borderRadius: 100,
-                            }}
-                            contentFit="contain"
-                          />
-                        ) : (
-                          <Feather name="user" size={50} color={Colors.TEXT} />
-                        )}
-                      </View>
-                      {/* Text */}
-                      <View
-                        style={{
-                          flex: 1,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: profilePhoto ? Colors.PRIMARY : Colors.TEXT,
-                            fontSize: 17,
-                            fontWeight: "bold",
-                            textAlign: "center",
-                          }}
-                        >
-                          {profilePhoto
-                            ? "Profile Photo Added"
-                            : "Add Profile Photo"}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
+
                   {/* Password */}
                   <Input
                     placeholder="Create your password"
@@ -380,7 +291,11 @@ const SignUp = () => {
                     {/* Submit */}
                     {loading && <Loading />}
                     {!loading && (
-                      <AuthButton onPress={props.handleSubmit} label="Submit" />
+                      <AuthButton
+                        onPress={props.handleSubmit}
+                        disabled={!(props.isValid && props.dirty)}
+                        label="Submit"
+                      />
                     )}
                   </View>
                   {/* Footer */}
@@ -405,3 +320,46 @@ const SignUp = () => {
 };
 
 export default SignUp;
+
+// 11/07/2023
+// <View className="flex flex-row mb-4 border border-primary-light dark:border-primary-dark rounded-md w-full items-center justify-center">
+//   <TouchableOpacity
+//     onPress={addProfilePhoto}
+//     className="flex flex-row items-center w-full p-2"
+//   >
+//     <View className="rounded-full border border-primary-light dark:border-primary-dark items-center justify-center p-1">
+//       {profilePhoto ? (
+//         <Image
+//           source={{ uri: String(profilePhoto) }}
+//           style={{
+//             width: 50,
+//             height: 50,
+//             borderRadius: 100,
+//           }}
+//           contentFit="contain"
+//         />
+//       ) : (
+//         <Feather name="user" size={50} color={Colors.TEXT} />
+//       )}
+//     </View>
+//     {/* Text */}
+//     <View
+//       style={{
+//         flex: 1,
+//       }}
+//     >
+//       <Text
+//         style={{
+//           color: profilePhoto ? Colors.PRIMARY : Colors.TEXT,
+//           fontSize: 17,
+//           fontWeight: "bold",
+//           textAlign: "center",
+//         }}
+//       >
+//         {profilePhoto
+//           ? "Profile Photo Added"
+//           : "Add Profile Photo"}
+//       </Text>
+//     </View>
+//   </TouchableOpacity>
+// </View>

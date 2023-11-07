@@ -20,6 +20,7 @@ import { ErrorMessages } from "../../../src/components/ui/Errors";
 import { AuthButton } from "../../../src/components/auth/AuthButton";
 import Loading from "../../../src/components/ui/Loading";
 import { validateSignUp } from "../../../src/lib/forms/useValidation";
+import * as SplashScreen from "expo-splash-screen";
 
 type ValueType = {
   school: Item;
@@ -60,6 +61,7 @@ const SignUp = () => {
     const s = getSchools();
     s.then((res) => {
       setSchoolList(res);
+      SplashScreen.hideAsync();
     });
   }, []);
 
@@ -85,19 +87,16 @@ const SignUp = () => {
     }
   };
 
+  if (schoolList.length === 0) {
+    SplashScreen.preventAutoHideAsync();
+  }
+
   return (
     <View className="flex-1 justify-between bg-background-light dark:bg-background-dark">
       {/* Spacer */}
       <View />
       {/* Image */}
-      <View
-        style={{
-          flexDirection: "row",
-          padding: 10,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <View className="flex flex-row justify-center items-center p-2">
         <Feather name="user-plus" size={100} color={Colors.PRIMARY} />
       </View>
       <View>
@@ -230,7 +229,10 @@ const SignUp = () => {
                     {loading && <Loading />}
                     {!loading && (
                       <AuthButton
-                        disabled={school.label === "" || school.value === ""}
+                        disabled={
+                          !(props.isValid && props.dirty) &&
+                          (school.label === "" || school.value === "")
+                        }
                         onPress={props.handleSubmit}
                         label="Next"
                       />
