@@ -1,21 +1,18 @@
-import { useRootNavigationState } from "expo-router";
+import { useLocalSearchParams, useRootNavigationState } from "expo-router";
 import { useRouter, useSegments } from "expo-router";
 import { AuthStore } from "../store";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 
 const Index = () => {
-
   const segments = useSegments();
   const router = useRouter();
 
   const navigationState = useRootNavigationState();
 
-  const { initialized, isLoggedIn } = AuthStore.useState();
+  const { initialized, isLoggedIn, slug, user } = AuthStore.useState();
 
-  console.log("segments", segments);
-  console.log("navigationState", navigationState);
-  console.log("initialized", initialized);
+  console.log("Slug: ", slug);
 
   React.useEffect(() => {
     if (!navigationState?.key || !initialized) return;
@@ -35,9 +32,18 @@ const Index = () => {
       // go to tabs root.
       // router.replace("/(tabs)/home");
       console.log("logged in");
+      router.replace(`/(protected)/${slug}/dashboard`);
     }
   }, [segments, navigationState?.key, initialized]);
 
-  return <View>{!navigationState?.key ? <Text className="text-text dark:text-text-dark">LOADING...</Text> : <></>}</View>;
+  return (
+    <View>
+      {!navigationState?.key ? (
+        <Text className="text-text dark:text-text-dark">LOADING...</Text>
+      ) : (
+        <></>
+      )}
+    </View>
+  );
 };
 export default Index;
