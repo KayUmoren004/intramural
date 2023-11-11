@@ -43,29 +43,31 @@ const Login = () => {
   // Hooks
   const Colors = useColor();
 
+  console.log("List: ", AuthStore.useState().schoolList);
+
   // Validation
   const [school, setSchool] = useState<Item>({ label: "", value: "" });
   const { LoginSchema } = validateLogin(school?.value ?? "");
 
-  const [schoolList, setSchoolList] = useState([]);
+  const [schoolList, setSchoolList] = useState(AuthStore.useState().schoolList);
 
   // State
   const [loading, setLoading] = useState<boolean>(false);
   const [modalShown, setModalShown] = useState<boolean>(false);
 
   // On Mount, get school lists
-  const getSchools = async () => {
-    const schools: any = await getSchoolList();
-    return schools.schoolList;
-  };
+  // const getSchools = async () => {
+  //   const schools: any = await getSchoolList();
+  //   return schools.schoolList;
+  // };
 
-  useEffect(() => {
-    const s = getSchools();
-    s.then((res) => {
-      setSchoolList(res);
-      SplashScreen.hideAsync();
-    });
-  }, []);
+  // useEffect(() => {
+  //   const s = getSchools();
+  //   s.then((res) => {
+  //     setSchoolList(res);
+  //     SplashScreen.hideAsync();
+  //   });
+  // }, []);
 
   // Auth Flow
   const AuthFlow = async (values: ValueType) => {
@@ -93,9 +95,9 @@ const Login = () => {
   };
 
   // Conditional rendering statement to wait for school list to populate
-  if (schoolList.length === 0) {
-    SplashScreen.preventAutoHideAsync();
-  }
+  // if (schoolList.length === 0) {
+  //   SplashScreen.preventAutoHideAsync();
+  // }
 
   return (
     <View className="flex-1 justify-between bg-background-light dark:bg-background-dark">
@@ -254,7 +256,10 @@ const Login = () => {
                           <AuthButton
                             onPress={props.handleSubmit}
                             label="Login"
-                            disabled={!(props.isValid && props.dirty)}
+                            disabled={
+                              !(props.isValid && props.dirty) &&
+                              (school.label !== "" || school.value !== "")
+                            }
                           />
                         )}
                       </View>

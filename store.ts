@@ -1,4 +1,4 @@
-import { Store, registerInDevtools } from "pullstate";
+import { Store, createAsyncAction, registerInDevtools } from "pullstate";
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -28,6 +28,7 @@ import {
   addDoc,
   limitToLast,
   where,
+  DocumentData,
 } from "firebase/firestore";
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -55,11 +56,13 @@ import type { User } from "./src/lib/types/entities";
 import { Platform } from "react-native";
 
 // Types
-type StoreType = {
+export type StoreType = {
   isLoggedIn: boolean;
   initialized: boolean;
-  user: User | null | any;
+  user: any;
+  userData: any;
   slug: string | null;
+  schoolList: any;
 };
 
 type schoolListType = {
@@ -76,7 +79,9 @@ export const AuthStore = new Store<StoreType>({
   isLoggedIn: false,
   initialized: false,
   user: null,
+  userData: null,
   slug: null,
+  schoolList: null,
 });
 
 // Get User
@@ -84,6 +89,23 @@ export const getCurrentUser = async () => {
   try {
     const user = auth.currentUser;
     return { user };
+  } catch (e: any) {
+    return { error: e };
+  }
+};
+
+// Get User Data - firestore
+export const getUserData = async () => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const docRef = doc(db, "users", uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      return { userData: data };
+    } else {
+      return { userData: null };
+    }
   } catch (e: any) {
     return { error: e };
   }
@@ -121,14 +143,39 @@ const getSlug = async () => {
   }
 };
 
-const unsub = onAuthStateChanged(auth, (user) => {
+const unsub = onAuthStateChanged(auth, async (user) => {
   console.log("onAuthStateChange", user);
-  AuthStore.update((store: StoreType) => {
-    store.user = user;
-    store.isLoggedIn = user ? true : false;
-    store.initialized = true;
-    store.slug = user?.email ? user.email.split("@")[1].split(".")[0] : null;
-  });
+  // AuthStore.update((store: StoreType) => {
+  //   store.user = user;
+  //   store.isLoggedIn = user ? true : false;
+  //   store.initialized = true;
+  //   store.slug = user?.email ? user.email.split("@")[1].split(".")[0] : null;
+  //   store.userData = user ? getUserData() : null;
+  // });
+  const schoolListResult = await getSchoolList();
+  if (user) {
+    // Fetch the user data from Firestore
+    const userDataResult = await getUserData();
+
+    // Update the AuthStore with the fetched user data
+    AuthStore.update((store: StoreType) => {
+      store.user = user;
+      store.isLoggedIn = true;
+      store.initialized = true;
+      store.slug = user.email ? user.email.split("@")[1].split(".")[0] : null;
+      store.schoolList = schoolListResult.schoolList;
+      store.userData = userDataResult.userData;
+    });
+  } else {
+    // User is signed out
+    AuthStore.update((store: StoreType) => {
+      store.user = null;
+      store.isLoggedIn = false;
+      store.initialized = true;
+      store.userData = null;
+      store.schoolList = schoolListResult.schoolList;
+    });
+  }
 });
 
 export const appSignIn = async (email: string, password: string) => {
@@ -159,7 +206,6 @@ export const appSignOut = async () => {
 
 export const appSignUp = async (user: any) => {
   try {
-    // this will trigger onAuthStateChange to update the store..
     const resp = await createUserWithEmailAndPassword(
       auth,
       user.email,
@@ -180,14 +226,10 @@ export const appSignUp = async (user: any) => {
       ) as any
     );
 
-    console.log("schoolQuerySnapshot", schoolQuerySnapshot);
-
     // If the school exists, get the id
     if (schoolQuerySnapshot.size > 0) {
       schoolId = schoolQuerySnapshot.docs[0].id;
     }
-
-    console.log("schoolId", schoolId);
 
     // Create firestore user collection
     await setDoc(doc(db, "users", uid), {
@@ -206,11 +248,8 @@ export const appSignUp = async (user: any) => {
       schoolDomain: user.schoolDomain,
     });
 
-    // add the displayName
-    // await updateProfile(resp.user, { displayName });
-
     if (user.profilePhoto) {
-      profilePhotoUrl = await uploadProfilePhoto(user.profilePhoto);
+      // profilePhotoUrl = await uploadProfilePhoto(user.profilePhoto);
     }
 
     delete user.actualPassword;
@@ -259,58 +298,6 @@ export const appVerifyEmail = async () => {
   }
 };
 
-// Upload Profile Photo
-const uploadProfilePhoto = async (uri: any) => {
-  const uid = auth.currentUser?.uid;
-  try {
-    // console.log("Init, ", uri);
-    const photo: any = await getBlob(uri);
-    // console.log("Modified URI: ", photo);
-    // const photo = await fetch(uri).then((r) => r.blob());
-    // console.log("0");
-    const imageRef: any = ref(storage, `profilePhotos/${uid}/photo.jpg`);
-    // console.log("1");
-    await uploadBytes(imageRef, photo);
-    // console.log("2");
-
-    const url = await getDownloadURL(imageRef);
-    // console.log("3");
-
-    await updateDoc(doc(db, "users", uid), {
-      profilePhotoUrl: url,
-    });
-    // console.log("4");
-
-    return url;
-  } catch (err: any) {
-    console.log("Error @Firebase.uploadProfilePhoto: ", err.message);
-  }
-};
-
-// Get blob from uri
-const getBlob = async (uri: string) => {
-  return await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-
-    xhr.onload = () => {
-      resolve(xhr.response);
-    };
-
-    xhr.onerror = () => {
-      reject(new Error("Network request failed"));
-    };
-
-    // Replace "file://" with "" if platform is ios
-
-    const modifiedURI =
-      Platform.OS === "ios" ? uri.replace("file://", "") : uri;
-
-    xhr.responseType = "blob";
-    xhr.open("GET", modifiedURI, true);
-    xhr.send(null);
-  });
-};
-
 // Get School List from Firestore
 export const getSchoolList = async () => {
   try {
@@ -329,3 +316,55 @@ export const getSchoolList = async () => {
 };
 
 registerInDevtools({ AuthStore });
+
+// Upload Profile Photo
+// const uploadProfilePhoto = async (uri: any) => {
+//   const uid = auth.currentUser?.uid;
+//   try {
+//     // console.log("Init, ", uri);
+//     const photo: any = await getBlob(uri);
+//     // console.log("Modified URI: ", photo);
+//     // const photo = await fetch(uri).then((r) => r.blob());
+//     // console.log("0");
+//     const imageRef: any = ref(storage, `profilePhotos/${uid}/photo.jpg`);
+//     // console.log("1");
+//     await uploadBytes(imageRef, photo);
+//     // console.log("2");
+
+//     const url = await getDownloadURL(imageRef);
+//     // console.log("3");
+
+//     await updateDoc(doc(db, "users", uid), {
+//       profilePhotoUrl: url,
+//     });
+//     // console.log("4");
+
+//     return url;
+//   } catch (err: any) {
+//     console.log("Error @Firebase.uploadProfilePhoto: ", err.message);
+//   }
+// };
+
+// Get blob from uri
+// const getBlob = async (uri: string) => {
+//   return await new Promise((resolve, reject) => {
+//     const xhr = new XMLHttpRequest();
+
+//     xhr.onload = () => {
+//       resolve(xhr.response);
+//     };
+
+//     xhr.onerror = () => {
+//       reject(new Error("Network request failed"));
+//     };
+
+//     // Replace "file://" with "" if platform is ios
+
+//     const modifiedURI =
+//       Platform.OS === "ios" ? uri.replace("file://", "") : uri;
+
+//     xhr.responseType = "blob";
+//     xhr.open("GET", modifiedURI, true);
+//     xhr.send(null);
+//   });
+// };
