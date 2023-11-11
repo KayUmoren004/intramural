@@ -100,8 +100,6 @@ const SignUp = () => {
       });
 
       if (!result.canceled) {
-        // console.log("result: ", result);
-        // console.log("Set Photo Input: ", result.assets[0].uri);
         setProfilePhoto(result.assets[0].uri);
       }
     } catch (error) {
@@ -230,6 +228,47 @@ const SignUp = () => {
               return (
                 <View>
                   {/* Profile Pic */}
+                  <View className="flex flex-row mb-4 border border-primary-light dark:border-primary-dark rounded-md w-full items-center justify-center">
+                    <TouchableOpacity
+                      onPress={addProfilePhoto}
+                      className="flex flex-row items-center w-full p-2"
+                    >
+                      <View className="rounded-full border border-primary-light dark:border-primary-dark items-center justify-center p-1">
+                        {profilePhoto ? (
+                          <Image
+                            source={{ uri: String(profilePhoto) }}
+                            style={{
+                              width: 50,
+                              height: 50,
+                              borderRadius: 100,
+                            }}
+                            contentFit="contain"
+                          />
+                        ) : (
+                          <Feather name="user" size={50} color={Colors.TEXT} />
+                        )}
+                      </View>
+                      {/* Text */}
+                      <View
+                        style={{
+                          flex: 1,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: profilePhoto ? Colors.PRIMARY : Colors.TEXT,
+                            fontSize: 17,
+                            fontWeight: "bold",
+                            textAlign: "center",
+                          }}
+                        >
+                          {profilePhoto
+                            ? "Profile Photo Added"
+                            : "Add Profile Photo"}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
 
                   {/* Password */}
                   <Input
@@ -322,44 +361,3 @@ const SignUp = () => {
 export default SignUp;
 
 // 11/07/2023
-// <View className="flex flex-row mb-4 border border-primary-light dark:border-primary-dark rounded-md w-full items-center justify-center">
-//   <TouchableOpacity
-//     onPress={addProfilePhoto}
-//     className="flex flex-row items-center w-full p-2"
-//   >
-//     <View className="rounded-full border border-primary-light dark:border-primary-dark items-center justify-center p-1">
-//       {profilePhoto ? (
-//         <Image
-//           source={{ uri: String(profilePhoto) }}
-//           style={{
-//             width: 50,
-//             height: 50,
-//             borderRadius: 100,
-//           }}
-//           contentFit="contain"
-//         />
-//       ) : (
-//         <Feather name="user" size={50} color={Colors.TEXT} />
-//       )}
-//     </View>
-//     {/* Text */}
-//     <View
-//       style={{
-//         flex: 1,
-//       }}
-//     >
-//       <Text
-//         style={{
-//           color: profilePhoto ? Colors.PRIMARY : Colors.TEXT,
-//           fontSize: 17,
-//           fontWeight: "bold",
-//           textAlign: "center",
-//         }}
-//       >
-//         {profilePhoto
-//           ? "Profile Photo Added"
-//           : "Add Profile Photo"}
-//       </Text>
-//     </View>
-//   </TouchableOpacity>
-// </View>
