@@ -44,26 +44,26 @@ const SignUp = () => {
 
   // Validation
   const [school, setSchool] = useState<Item>({ label: "", value: "" });
-  const [schoolList, setSchoolList] = useState([]);
+  const [schoolList, setSchoolList] = useState(AuthStore.useState().schoolList);
   const { signUpSchema1 } = validateSignUp(school?.value ?? "");
 
   // State
   const [loading, setLoading] = useState<boolean>(false);
   const [modalShown, setModalShown] = useState<boolean>(false);
 
-  // On Mount, get school lists
-  const getSchools = async () => {
-    const schools: any = await getSchoolList();
-    return schools.schoolList;
-  };
+  // // On Mount, get school lists
+  // const getSchools = async () => {
+  //   const schools: any = await getSchoolList();
+  //   return schools.schoolList;
+  // };
 
-  useEffect(() => {
-    const s = getSchools();
-    s.then((res) => {
-      setSchoolList(res);
-      SplashScreen.hideAsync();
-    });
-  }, []);
+  // useEffect(() => {
+  //   const s = getSchools();
+  //   s.then((res) => {
+  //     setSchoolList(res);
+  //     SplashScreen.hideAsync();
+  //   });
+  // }, []);
 
   // Auth Flow
   const AuthFlow = (values: ValueType) => {
@@ -87,9 +87,9 @@ const SignUp = () => {
     }
   };
 
-  if (schoolList.length === 0) {
-    SplashScreen.preventAutoHideAsync();
-  }
+  // if (schoolList.length === 0) {
+  //   SplashScreen.preventAutoHideAsync();
+  // }
 
   return (
     <View className="flex-1 justify-between bg-background-light dark:bg-background-dark">
@@ -169,75 +169,80 @@ const SignUp = () => {
                     </TouchableOpacity>
                   </View>
 
-                  {/* Name */}
-                  <Input
-                    placeholder="First and Last Name"
-                    onChangeText={props.handleChange("name")}
-                    value={props.values.name}
-                    onSubmitEditing={(e: any) => props.handleSubmit}
-                    inputStyle={{
-                      color: Colors.TEXT,
-                      fontSize: 17,
-                    }}
-                    inputContainerStyle={{
-                      borderBottomColor: Colors.TEXT,
-                      borderBottomWidth: 1,
-                    }}
-                    errorMessage={nameError}
-                    leftIcon={{
-                      type: "feather",
-                      name: "user",
-                      color: Colors.PRIMARY,
-                    }}
-                    autoComplete="name"
-                    autoCapitalize="none"
-                  />
-                  {/* Spacer */}
-                  <View style={{ height: 10 }} />
-
-                  {/* Email Input - get slug and check domain in email */}
-                  <Input
-                    placeholder="Enter your email"
-                    onChangeText={props.handleChange("email")}
-                    value={props.values.email}
-                    onSubmitEditing={(e: any) => props.handleSubmit}
-                    textContentType="none"
-                    errorMessage={emailError}
-                    inputStyle={{
-                      color: Colors.TEXT,
-                      fontSize: 17,
-                    }}
-                    inputContainerStyle={{
-                      borderBottomColor: Colors.TEXT,
-                      borderBottomWidth: 1,
-                    }}
-                    leftIcon={{
-                      type: "feather",
-                      name: "at-sign",
-                      color: Colors.PRIMARY,
-                    }}
-                    inputMode="email"
-                    autoCapitalize="none"
-                  />
-
-                  {/* Spacer */}
-                  <View style={{ height: 10 }} />
-
-                  {/* Login Button */}
-                  <View>
-                    {/* Submit */}
-                    {loading && <Loading />}
-                    {!loading && (
-                      <AuthButton
-                        disabled={
-                          !(props.isValid && props.dirty) &&
-                          (school.label === "" || school.value === "")
-                        }
-                        onPress={props.handleSubmit}
-                        label="Next"
+                  {school.value !== "" && school.label !== "" ? (
+                    <>
+                      {/* Name */}
+                      <Input
+                        placeholder="First and Last Name"
+                        onChangeText={props.handleChange("name")}
+                        value={props.values.name}
+                        onSubmitEditing={(e: any) => props.handleSubmit}
+                        inputStyle={{
+                          color: Colors.TEXT,
+                          fontSize: 17,
+                        }}
+                        inputContainerStyle={{
+                          borderBottomColor: Colors.TEXT,
+                          borderBottomWidth: 1,
+                        }}
+                        errorMessage={nameError}
+                        leftIcon={{
+                          type: "feather",
+                          name: "user",
+                          color: Colors.PRIMARY,
+                        }}
+                        autoComplete="name"
+                        autoCapitalize="none"
                       />
-                    )}
-                  </View>
+                      {/* Spacer */}
+                      <View style={{ height: 10 }} />
+
+                      {/* Email Input - get slug and check domain in email */}
+                      <Input
+                        placeholder="Enter your email"
+                        onChangeText={props.handleChange("email")}
+                        value={props.values.email}
+                        onSubmitEditing={(e: any) => props.handleSubmit}
+                        textContentType="none"
+                        errorMessage={emailError}
+                        inputStyle={{
+                          color: Colors.TEXT,
+                          fontSize: 17,
+                        }}
+                        inputContainerStyle={{
+                          borderBottomColor: Colors.TEXT,
+                          borderBottomWidth: 1,
+                        }}
+                        leftIcon={{
+                          type: "feather",
+                          name: "at-sign",
+                          color: Colors.PRIMARY,
+                        }}
+                        inputMode="email"
+                        autoCapitalize="none"
+                      />
+
+                      {/* Spacer */}
+                      <View style={{ height: 10 }} />
+
+                      {/* Login Button */}
+                      <View>
+                        {/* Submit */}
+                        {loading && <Loading />}
+                        {!loading && (
+                          <AuthButton
+                            disabled={
+                              !(props.isValid && props.dirty) &&
+                              (school.label !== "" || school.value !== "")
+                            }
+                            onPress={props.handleSubmit}
+                            label="Next"
+                          />
+                        )}
+                      </View>
+                    </>
+                  ) : null}
+
                   {/* Footer */}
                   <View className="flex flex-row justify-center w-full p-4">
                     <Text className="text-text-light dark:text-text-dark text-xl ">

@@ -11,7 +11,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { Slot, Stack } from "expo-router";
 
 // Keep the splash screen visible while we fetch resources
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 const Layout = () => {
   return (
