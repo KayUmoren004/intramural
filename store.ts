@@ -72,7 +72,7 @@ type schoolListType = {
 
 type updateUserData = {
   field: string;
-  value: string;
+  value: any;
 };
 
 export const AuthStore = new Store<StoreType>({
@@ -181,6 +181,15 @@ const unsub = onAuthStateChanged(auth, async (user) => {
 export const appSignIn = async (email: string, password: string) => {
   try {
     const resp = await signInWithEmailAndPassword(auth, email, password);
+
+    // Update last sign in date
+    const data:updateUserData = {
+      field: "lastLogin",
+      value: serverTimestamp(),
+    }
+
+    await updateUserData(data);
+
     AuthStore.update((store: StoreType) => {
       store.user = resp.user;
       store.isLoggedIn = resp.user ? true : false;
@@ -215,6 +224,7 @@ export const appSignUp = async (user: any) => {
     // Get UID
     const uid = auth.currentUser?.uid;
     let profilePhotoUrl: any = "default";
+    let localProfilePhoto: any = user.profilePhoto;
 
     let schoolId = "";
 
@@ -231,6 +241,16 @@ export const appSignUp = async (user: any) => {
       schoolId = schoolQuerySnapshot.docs[0].id;
     }
 
+        // If a profile photo is provided, upload it
+        if (user.profilePhoto) {
+          profilePhotoUrl = await uploadImage(user.profilePhoto);
+          if (!profilePhotoUrl) {
+            console.error('Error uploading profile photo');
+            // Handle the error (e.g., set a default image or retry upload)
+            profilePhotoUrl = 'default';
+          }
+        }
+
     // Create firestore user collection
     await setDoc(doc(db, "users", uid), {
       name: user.name,
@@ -240,7 +260,10 @@ export const appSignUp = async (user: any) => {
       updatedAt: serverTimestamp(),
       bio: user.bio ?? "",
       emailVerified: false,
-      image: profilePhotoUrl,
+      image: {
+        local: localProfilePhoto,
+        url: profilePhotoUrl,
+      },
       username: user.username ?? "",
       signUpDate: new Date(),
       lastLogin: new Date(),
@@ -248,18 +271,18 @@ export const appSignUp = async (user: any) => {
       schoolDomain: user.schoolDomain,
     });
 
-    if (user.profilePhoto) {
-      // profilePhotoUrl = await uploadProfilePhoto(user.profilePhoto);
-    }
-
     delete user.actualPassword;
+
+    // Get Userdata from firestore
+    const userDataResult = await (await getUserData()).userData;
 
     AuthStore.update((store) => {
       store.user = auth.currentUser;
+      store.userData = userDataResult;
       store.isLoggedIn = true;
     });
 
-    return { user: auth.currentUser };
+    return { user: auth.currentUser, userData: userDataResult };
   } catch (e: any) {
     return { error: e };
   }
@@ -314,6 +337,43 @@ export const getSchoolList = async () => {
     return { error: e };
   }
 };
+
+// Function to upload image to Firebase Storage
+const uploadImage = async (imageUri: string) => {
+  const uid = auth.currentUser?.uid; // Get current user's UID
+  const storage = getStorage();
+  const imageRef = ref(storage, `profilePhotos/${uid}`);
+
+  try {
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
+
+    // Upload image
+    await uploadBytes(imageRef, blob);
+
+    // Get the download URL
+    const downloadURL = await getDownloadURL(imageRef);
+    return downloadURL;
+  } catch (error) {
+    console.error('Error uploading image: ', error);
+    return null;
+  }
+};
+
+// Function to update Firestore document
+const updateFirestoreImage = async (imageUrl: string) => {
+  const db = getFirestore();
+  const uid = auth.currentUser?.uid;
+  const userDocRef = doc(db, 'users', uid);
+
+  try {
+    await updateDoc(userDocRef, { image: imageUrl });
+    console.log('Firestore document updated with image URL');
+  } catch (error) {
+    console.error('Error updating Firestore: ', error);
+  }
+};
+
 
 registerInDevtools({ AuthStore });
 
