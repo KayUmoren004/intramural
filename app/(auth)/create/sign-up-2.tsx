@@ -96,7 +96,7 @@ const SignUp = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 1.0,
+        quality: 0,
       });
 
       if (!result.canceled) {

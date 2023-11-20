@@ -21,8 +21,6 @@ import { ErrorMessages } from "../../src/components/ui/Errors";
 import { AuthButton } from "../../src/components/auth/AuthButton";
 import Loading from "../../src/components/ui/Loading";
 
-import * as SplashScreen from "expo-splash-screen";
-
 type ValueType = {
   school: Item;
   email: string;
@@ -55,20 +53,6 @@ const Login = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [modalShown, setModalShown] = useState<boolean>(false);
 
-  // On Mount, get school lists
-  // const getSchools = async () => {
-  //   const schools: any = await getSchoolList();
-  //   return schools.schoolList;
-  // };
-
-  // useEffect(() => {
-  //   const s = getSchools();
-  //   s.then((res) => {
-  //     setSchoolList(res);
-  //     SplashScreen.hideAsync();
-  //   });
-  // }, []);
-
   // Auth Flow
   const AuthFlow = async (values: ValueType) => {
     // console.log(values);
@@ -93,11 +77,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-  // Conditional rendering statement to wait for school list to populate
-  // if (schoolList.length === 0) {
-  //   SplashScreen.preventAutoHideAsync();
-  // }
 
   return (
     <View className="flex-1 justify-between bg-background-light dark:bg-background-dark">

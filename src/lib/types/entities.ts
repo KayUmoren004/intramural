@@ -1,3 +1,5 @@
+import { sportStats } from "./sports";
+
 export type School = {
   id: string;
   name: string;
@@ -38,11 +40,11 @@ export type Team = {
   id: string;
   leagueId: string; // Reference to associated league
   name: string;
-  coachName: string;
+  captainName: string;
   logoUrl: string;
   wins: number; // Number of victories
   losses: number; // Number of defeats
-  draws: number; // Number of draws (relevant for sports like soccer)
+  ties: number; // Number of draws (relevant for sports like soccer)
 };
 
 export type Player = {
@@ -70,7 +72,7 @@ export type Game = {
 };
 
 type DynamicStats = {
-  [key: string]: number | string | boolean; // This allows for various types of statistics like counts, labels, or binary states.
+  [key: string]: number | string | boolean | sportStats; // This allows for various types of statistics like counts, labels, or binary states.
 };
 
 // Represents statistics for a specific game.
@@ -82,7 +84,7 @@ export type GameStats = {
 // Represents individual stats for a player across games.
 export type PlayerStats = {
   playerId: string;
-  stats: DynamicStats;
+  stats: DynamicStats[];
 };
 
 // Represents stats for a team across a season or several games.
@@ -119,7 +121,7 @@ export type SeasonGameStats = {
 };
 
 export type User = {
-  id: string;
+  uid: string;
   email: string;
   name: string;
   role: "ADMIN" | "CLIENT";
