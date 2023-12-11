@@ -144,38 +144,30 @@ const getSlug = async () => {
 };
 
 const unsub = onAuthStateChanged(auth, async (user) => {
-  console.log("onAuthStateChange", user);
-  // AuthStore.update((store: StoreType) => {
-  //   store.user = user;
-  //   store.isLoggedIn = user ? true : false;
-  //   store.initialized = true;
-  //   store.slug = user?.email ? user.email.split("@")[1].split(".")[0] : null;
-  //   store.userData = user ? getUserData() : null;
-  // });
+  // Fetch common data irrespective of the user's auth state
   const schoolListResult = await getSchoolList();
-  if (user) {
-    // Fetch the user data from Firestore
-    const userDataResult = await getUserData();
 
-    // Update the AuthStore with the fetched user data
-    AuthStore.update((store: StoreType) => {
-      store.user = user;
-      store.isLoggedIn = true;
-      store.initialized = true;
-      store.slug = user.email ? user.email.split("@")[1].split(".")[0] : null;
-      store.schoolList = schoolListResult.schoolList;
-      store.userData = userDataResult.userData;
-    });
-  } else {
-    // User is signed out
-    AuthStore.update((store: StoreType) => {
-      store.user = null;
-      store.isLoggedIn = false;
-      store.initialized = true;
-      store.userData = null;
-      store.schoolList = schoolListResult.schoolList;
-    });
+  // Declare variables for optional data
+  let userDataResult: any = null;
+  let slug: string | null = null;
+
+  // Fetch user-specific data if the user is logged in
+  if (user) {
+    userDataResult = await getUserData();
+    slug = user.email ? user.email.split("@")[1].split(".")[0] : null;
   }
+
+  // Update the AuthStore only after all data is processed
+  AuthStore.update((store) => {
+    store.user = user;
+    store.userData = userDataResult ? userDataResult.userData : null;
+    store.slug = slug;
+    store.schoolList = schoolListResult.schoolList;
+
+    // Set initialized to true here, after all data fetching and processing is complete
+    store.initialized = true;
+    store.isLoggedIn = !!user;
+  });
 });
 
 export const appSignIn = async (email: string, password: string) => {
@@ -183,10 +175,10 @@ export const appSignIn = async (email: string, password: string) => {
     const resp = await signInWithEmailAndPassword(auth, email, password);
 
     // Update last sign in date
-    const data:updateUserData = {
+    const data: updateUserData = {
       field: "lastLogin",
       value: serverTimestamp(),
-    }
+    };
 
     await updateUserData(data);
 
@@ -241,15 +233,15 @@ export const appSignUp = async (user: any) => {
       schoolId = schoolQuerySnapshot.docs[0].id;
     }
 
-        // If a profile photo is provided, upload it
-        if (user.profilePhoto) {
-          profilePhotoUrl = await uploadImage(user.profilePhoto);
-          if (!profilePhotoUrl) {
-            console.error('Error uploading profile photo');
-            // Handle the error (e.g., set a default image or retry upload)
-            profilePhotoUrl = 'default';
-          }
-        }
+    // If a profile photo is provided, upload it
+    if (user.profilePhoto) {
+      profilePhotoUrl = await uploadImage(user.profilePhoto);
+      if (!profilePhotoUrl) {
+        console.error("Error uploading profile photo");
+        // Handle the error (e.g., set a default image or retry upload)
+        profilePhotoUrl = "default";
+      }
+    }
 
     // Create firestore user collection
     await setDoc(doc(db, "users", uid), {
@@ -269,6 +261,7 @@ export const appSignUp = async (user: any) => {
       lastLogin: new Date(),
       schoolId: schoolId,
       schoolDomain: user.schoolDomain,
+      uid: uid,
     });
 
     delete user.actualPassword;
@@ -355,7 +348,7 @@ const uploadImage = async (imageUri: string) => {
     const downloadURL = await getDownloadURL(imageRef);
     return downloadURL;
   } catch (error) {
-    console.error('Error uploading image: ', error);
+    console.error("Error uploading image: ", error);
     return null;
   }
 };
@@ -364,67 +357,14 @@ const uploadImage = async (imageUri: string) => {
 const updateFirestoreImage = async (imageUrl: string) => {
   const db = getFirestore();
   const uid = auth.currentUser?.uid;
-  const userDocRef = doc(db, 'users', uid);
+  const userDocRef = doc(db, "users", uid);
 
   try {
     await updateDoc(userDocRef, { image: imageUrl });
-    console.log('Firestore document updated with image URL');
+    console.log("Firestore document updated with image URL");
   } catch (error) {
-    console.error('Error updating Firestore: ', error);
+    console.error("Error updating Firestore: ", error);
   }
 };
 
-
 registerInDevtools({ AuthStore });
-
-// Upload Profile Photo
-// const uploadProfilePhoto = async (uri: any) => {
-//   const uid = auth.currentUser?.uid;
-//   try {
-//     // console.log("Init, ", uri);
-//     const photo: any = await getBlob(uri);
-//     // console.log("Modified URI: ", photo);
-//     // const photo = await fetch(uri).then((r) => r.blob());
-//     // console.log("0");
-//     const imageRef: any = ref(storage, `profilePhotos/${uid}/photo.jpg`);
-//     // console.log("1");
-//     await uploadBytes(imageRef, photo);
-//     // console.log("2");
-
-//     const url = await getDownloadURL(imageRef);
-//     // console.log("3");
-
-//     await updateDoc(doc(db, "users", uid), {
-//       profilePhotoUrl: url,
-//     });
-//     // console.log("4");
-
-//     return url;
-//   } catch (err: any) {
-//     console.log("Error @Firebase.uploadProfilePhoto: ", err.message);
-//   }
-// };
-
-// Get blob from uri
-// const getBlob = async (uri: string) => {
-//   return await new Promise((resolve, reject) => {
-//     const xhr = new XMLHttpRequest();
-
-//     xhr.onload = () => {
-//       resolve(xhr.response);
-//     };
-
-//     xhr.onerror = () => {
-//       reject(new Error("Network request failed"));
-//     };
-
-//     // Replace "file://" with "" if platform is ios
-
-//     const modifiedURI =
-//       Platform.OS === "ios" ? uri.replace("file://", "") : uri;
-
-//     xhr.responseType = "blob";
-//     xhr.open("GET", modifiedURI, true);
-//     xhr.send(null);
-//   });
-// };

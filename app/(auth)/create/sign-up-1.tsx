@@ -20,7 +20,6 @@ import { ErrorMessages } from "../../../src/components/ui/Errors";
 import { AuthButton } from "../../../src/components/auth/AuthButton";
 import Loading from "../../../src/components/ui/Loading";
 import { validateSignUp } from "../../../src/lib/forms/useValidation";
-import * as SplashScreen from "expo-splash-screen";
 
 type ValueType = {
   school: Item;
@@ -51,20 +50,6 @@ const SignUp = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [modalShown, setModalShown] = useState<boolean>(false);
 
-  // // On Mount, get school lists
-  // const getSchools = async () => {
-  //   const schools: any = await getSchoolList();
-  //   return schools.schoolList;
-  // };
-
-  // useEffect(() => {
-  //   const s = getSchools();
-  //   s.then((res) => {
-  //     setSchoolList(res);
-  //     SplashScreen.hideAsync();
-  //   });
-  // }, []);
-
   // Auth Flow
   const AuthFlow = (values: ValueType) => {
     setLoading(true);
@@ -87,9 +72,6 @@ const SignUp = () => {
     }
   };
 
-  // if (schoolList.length === 0) {
-  //   SplashScreen.preventAutoHideAsync();
-  // }
 
   return (
     <View className="flex-1 justify-between bg-background-light dark:bg-background-dark">

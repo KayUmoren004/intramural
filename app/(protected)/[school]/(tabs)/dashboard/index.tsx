@@ -12,6 +12,7 @@ import { appSignOut } from "../../../../../store";
 
 export default function App() {
   const { school } = useLocalSearchParams<{ school: string }>();
+  console.log(school);
   return (
     <View className="flex-1 items-center justify-center bg-background-light dark:bg-background-dark">
       <Text className="text-text-light dark:text-text-dark">Dash</Text>

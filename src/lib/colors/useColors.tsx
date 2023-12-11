@@ -1,11 +1,21 @@
-import { useColorScheme } from "nativewind";
+import { useColorScheme } from "react-native";
 import { LIGHT_COLORS, DARK_COLORS } from "./Colors";
+import { useState, useEffect } from "react";
 
 const useColor = () => {
-  const { colorScheme } = useColorScheme();
+  // Get the current color scheme
+  let colorScheme = useColorScheme();
 
-  // Return the colors for the current color scheme
-  const colors = colorScheme === "dark" ? DARK_COLORS : LIGHT_COLORS;
+  // Set up state to hold the current colors
+  const [colors, setColors] = useState(
+    colorScheme === "dark" ? DARK_COLORS : LIGHT_COLORS
+  );
+
+  // Update the colors whenever the color scheme changes
+  useEffect(() => {
+    setColors(colorScheme === "dark" ? DARK_COLORS : LIGHT_COLORS);
+  }, [colorScheme]);
+
   return colors;
 };
 
