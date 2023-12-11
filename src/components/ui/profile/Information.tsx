@@ -4,6 +4,7 @@ import { Link } from "expo-router";
 import { useState } from "react";
 import SportModal from "./SportModal";
 import TeamCard from "./TeamCard";
+import StatsModal from "./StatsModal";
 
 type InformationProps = {
   title: string;
@@ -143,12 +144,12 @@ const PlayerStats = ({
         animationType="slide"
         className=" bg-background dark:bg-background-dark items-start justify-between w-full"
       >
-        {/* <SportModal
-          league={currentStats}
+        <StatsModal
+          stats={currentStats}
           data={data}
           modalOpen={modalOpen}
           setModalOpen={setModalOpen}
-        /> */}
+        />
       </Modal>
     </View>
   );

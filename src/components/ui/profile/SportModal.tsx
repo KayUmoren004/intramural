@@ -62,8 +62,6 @@ const SportModal = ({ modalOpen, setModalOpen, data, league }: ModalProps) => {
   // Find team based on league
   const team = teams.find((team) => team.leagueId === league?.id);
 
-  // console.log("Team: ", team);
-
   const sportName = league?.name.trim().toLowerCase();
 
   // Convert sportName to camel case (e.g., "Cross Country" to "crossCountry")
