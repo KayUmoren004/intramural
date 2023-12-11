@@ -1,9 +1,10 @@
-import { useColorScheme } from "nativewind";
+import { useColorScheme } from "react-native";
 import { LIGHT_COLORS, DARK_COLORS } from "./Colors";
 import { useState, useEffect } from "react";
 
 const useColor = () => {
-  const { colorScheme } = useColorScheme();
+  // Get the current color scheme
+  let colorScheme = useColorScheme();
 
   // Set up state to hold the current colors
   const [colors, setColors] = useState(

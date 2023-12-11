@@ -64,4 +64,5 @@ module.exports = {
     },
   },
   plugins: [],
+  // presets: ["nativewind"]
 };

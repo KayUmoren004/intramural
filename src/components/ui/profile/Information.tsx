@@ -1,5 +1,8 @@
-import { Text, View } from "react-native";
+import { Modal, Text, TouchableOpacity, View } from "react-native";
 import type { League, PlayerStats, Team } from "../../../lib/types/entities";
+import { Link } from "expo-router";
+import { useState } from "react";
+import SportModal from "./SportModal";
 
 type InformationProps = {
   title: string;
@@ -13,8 +16,6 @@ type InformationProps = {
 };
 
 const Information = ({ title, data, type }: InformationProps) => {
-  // Deco
-
   switch (type) {
     case "currentSeason":
       return <CurrentSeason title={title} data={data} />;
@@ -39,45 +40,56 @@ const CurrentSeason = ({
   // Deconstruct data
   const { season, teams, leagues, playerStats } = data;
 
-  return (
-    <View className="flex flex-col justify-between items-start w-full mb-10">
-      <Text className="text-text-light dark:text-text-dark font-bold text-2xl">
-        {title}:
-      </Text>
-      <View className="">
-        <Text className="text-text-light dark:text-text-dark">
-          Season: {season}
-        </Text>
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentLeague, setCurrentLeague] = useState<any>();
 
+  // Function to open modal
+  const openModal = (league: League) => {
+    setCurrentLeague(league);
+    setModalOpen(true);
+  };
+
+  return (
+    <View className="flex flex-col justify-between items-start w-full p-2">
+      <Text className="text-text-light dark:text-text-dark font-bold text-2xl">
+        {season}:
+      </Text>
+      <View className="w-full">
         {/* Leagues */}
         {leagues.map((league, index) => {
           return (
-            <View className="">
-              <Text className="text-text-light dark:text-text-dark font-bold">
+            <TouchableOpacity
+              onPress={() => openModal(league)}
+              className="
+             w-full border-2 border-primary rounded-md p-3 mb-3 "
+              key={index}
+            >
+              <Text
+                className="
+              text-text-light dark:text-text-dark font-bold"
+              >
                 {league.name}
               </Text>
-
-              {/* Teams */}
-              {
-                // Find teams that has the same leagueId as the current league
-                teams
-                  .filter((team) => team.leagueId === league.id)
-                  .map((team) => {
-                    return (
-                      <View className="">
-                        <Text className="text-text-light dark:text-text-dark">
-                          {team.name}
-                        </Text>
-
-                        {/* Stats */}
-                      </View>
-                    );
-                  })
-              }
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>
+
+      <Modal
+        visible={modalOpen}
+        onRequestClose={() => {
+          setModalOpen(!modalOpen);
+        }}
+        animationType="slide"
+        className=" bg-background dark:bg-background-dark items-start justify-between w-full"
+      >
+        <SportModal
+          league={currentLeague}
+          data={data}
+          modalOpen={modalOpen}
+          setModalOpen={setModalOpen}
+        />
+      </Modal>
     </View>
   );
 };
@@ -90,9 +102,8 @@ const PlayerStats = ({
   title: string;
 }) => {
   return (
-    <View className="flex flex-row justify-between items-center w-full mb-10">
+    <View className="flex flex-row justify-between items-center w-full mb-10 p-2">
       <Text className="text-text-light dark:text-text-dark font-bold text-2xl">
-        {/* {data?.playerStats} */}
         {title}
       </Text>
     </View>

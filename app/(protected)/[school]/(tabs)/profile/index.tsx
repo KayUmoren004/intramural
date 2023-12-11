@@ -136,7 +136,7 @@ export default function App() {
             />
           </View>
           {/* User Data View */}
-          <View className="">
+          <View className="w-full">
             {/* <Text className="text-text-light dark:text-text-dark">
             {userData1}
           </Text> */}
@@ -178,9 +178,9 @@ export default function App() {
             </View>
 
             {/* Body */}
-            <View className="w-full">
+            <View className="">
               {/* Current Season Information */}
-              <View>
+              <View className="">
                 <Information
                   type="currentSeason"
                   title="Current Season"
@@ -200,19 +200,6 @@ export default function App() {
       <Button title="Logout" onPress={() => signOut()} />
     </View>
   );
-}
-
-{
-  /* <Image
-        source={{ uri: url }}
-        style={{ width: "100%", height: IMG_HEIGHT }}
-        cachePolicy="disk"
-        onError={(e: ImageErrorEventData) => {
-          console.log(e);
-        }}
-        priority="high"
-        placeholder={userData.image_blurhash}
-      /> */
 }
 
 const currentSeason: {
