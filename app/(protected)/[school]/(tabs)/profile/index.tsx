@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   Dimensions,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { AuthStore, appSignOut, getUserData } from "../../../../../store";
 import { createAsyncAction, errorResult, successResult } from "pullstate";
@@ -73,8 +74,8 @@ export default function App() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View className="flex-1 items-center justify-between bg-background-light dark:bg-background-dark">
-      <View style={{ width: "100%", height: IMG_HEIGHT }}>
+    <View className="flex flex-1 items-center justify-between bg-background-light dark:bg-background-dark">
+      <View style={{ width: "100%", flex: 1 }}>
         {/* Cover Image and Settings */}
         <View style={{ width: "100%", height: IMG_HEIGHT }}>
           <CachedImage
@@ -109,7 +110,7 @@ export default function App() {
           </View>
         </View>
         {/* Profile Image and User Data */}
-        <View style={{ alignItems: "center" }}>
+        <View style={{ alignItems: "center", flex: 1 }}>
           {/* Profile Image */}
           <View
             style={{
@@ -136,11 +137,7 @@ export default function App() {
             />
           </View>
           {/* User Data View */}
-          <View className="w-full">
-            {/* <Text className="text-text-light dark:text-text-dark">
-            {userData1}
-          </Text> */}
-
+          <View className="w-full flex flex-1">
             {/* Name and Bio */}
             <View className="flex flex-col items-center justify-center mb-2">
               <View
@@ -178,26 +175,36 @@ export default function App() {
             </View>
 
             {/* Body */}
-            <View className="">
-              {/* Current Season Information */}
-              <View className="">
-                <Information
-                  type="currentSeason"
-                  title="Current Season"
-                  data={currentSeason}
-                />
-              </View>
+            <View className="flex flex-1">
+              <ScrollView
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+                className=""
+              >
+                {/* Current Season Information */}
+                <View className="">
+                  <Information
+                    type="currentSeason"
+                    title="Current Season"
+                    data={currentSeason}
+                  />
+                </View>
 
-              {/* PlayerStats */}
-              <View>
-                <Information type="playerStats" title="Player Stats" />
-              </View>
+                {/* PlayerStats */}
+                <View>
+                  <Information
+                    type="playerStats"
+                    title="Player Stats"
+                    data={currentSeason}
+                  />
+                </View>
+              </ScrollView>
             </View>
           </View>
         </View>
       </View>
 
-      <Button title="Logout" onPress={() => signOut()} />
+      {/* <Button title="Logout" onPress={() => signOut()} /> */}
     </View>
   );
 }
