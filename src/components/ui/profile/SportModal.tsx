@@ -56,7 +56,6 @@ const getSportData = (sportName: string) => {
 };
 
 const SportModal = ({ modalOpen, setModalOpen, data, league }: ModalProps) => {
-  console.log("Modal data: ", data);
   const { season, teams, leagues, playerStats } = data;
 
   // Find team based on league

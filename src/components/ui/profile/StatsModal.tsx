@@ -36,10 +36,13 @@ const StatsModal = ({ modalOpen, setModalOpen, data, stats }: ModalProps) => {
       </View>
 
       <View className="flex flex-1 w-full p-3 ">
-        {Object.keys(stats).map((key) => {
+        {Object.keys(stats).map((key, idx) => {
           if (!key.toLowerCase().endsWith("id")) {
             return (
-              <View className="flex flex-row items-center justify-between">
+              <View
+                key={idx}
+                className="flex flex-row items-center justify-between"
+              >
                 <Text className="text-text-light dark:text-text-dark font-bold text-2xl">
                   {formatHeaders(key)}
                 </Text>
