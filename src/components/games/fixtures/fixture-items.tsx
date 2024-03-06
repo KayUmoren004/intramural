@@ -2,6 +2,7 @@ import Text from "@/components/ui/Text";
 import { View } from "react-native";
 import { DateComponent, Team, TimeComponent } from "./fixture-atoms";
 import { generateBoxShadowStyle } from "@/scripts/box-shadow";
+import { AwayTeamType, HomeTeamType } from "@/lib/types/entities";
 
 type TeamType = {
   logo?: string;
@@ -11,8 +12,9 @@ type TeamType = {
 };
 
 export type FixtureType = {
-  homeTeam: TeamType;
-  awayTeam: TeamType;
+  id: string;
+  homeTeam: HomeTeamType;
+  awayTeam: AwayTeamType;
   date: string;
   time: string;
   fixtureId?: string;
@@ -46,9 +48,9 @@ const Fixture = ({
         <TimeComponent time={time} />
         <Team {...awayTeam} />
       </View>
-      {/* <View>
+      <View>
         <DateComponent date={date} />
-      </View> */}
+      </View>
     </View>
   );
 };

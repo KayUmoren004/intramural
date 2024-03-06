@@ -5,10 +5,15 @@ import Fixture, {
 import CreateTeam from "@/components/school/create-team";
 import Table from "@/components/table";
 import Loading from "@/components/ui/Loading";
+import {
+  buildCaptainFixture,
+  buildFixtures,
+} from "@/hooks/fixture/fixture-utils";
+import { useGetLeagueFixtures } from "@/hooks/fixture/useFixture";
 import { useGetLeague } from "@/hooks/league/useLeague";
 import useColor from "@/lib/colors/useColors";
 import { useSession } from "@/lib/providers/auth-provider";
-import { League, Team } from "@/lib/types/entities";
+import { type League, type Team } from "@/lib/types/entities";
 import { sportHeaders, sporttable } from "@/lib/types/headers";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
@@ -24,22 +29,22 @@ const DefaultImageMap: { [key: string]: string } = {
   away: "./away.png",
 };
 
-const fixture: FixtureType = {
-  homeTeam: {
-    logo: "",
-    name: "Home Team",
-    teamId: "1",
-    type: "home",
-  },
-  awayTeam: {
-    logo: "",
-    name: "Away Team",
-    teamId: "2",
-    type: "away",
-  },
-  date: "2022-01-01",
-  time: "12:00 PM",
-};
+// const fixture: FixtureType = {
+//   homeTeam: {
+//     logo: "",
+//     name: "Home Team",
+//     teamId: "1",
+//     type: "home",
+//   },
+//   awayTeam: {
+//     logo: "",
+//     name: "Away Team",
+//     teamId: "2",
+//     type: "away",
+//   },
+//   date: "2022-01-01",
+//   time: "12:00 PM",
+// };
 
 const Index = ({}: IndexProps) => {
   const { school, league, leagueId, sportId } = useLocalSearchParams<{
@@ -61,7 +66,14 @@ const Index = ({}: IndexProps) => {
     error,
   } = useGetLeague(sportId as string, leagueId as string);
 
-  if (isLoading)
+  const {
+    data: fixtureData,
+    isLoading: fixtureLoading,
+    isError: fixtureIsError,
+    error: fixtureError,
+  } = useGetLeagueFixtures(leagueId as string);
+
+  if (isLoading || fixtureLoading)
     return (
       <View className="bg-background-light dark:bg-background-dark flex-1 items-center justify-center">
         <Loading />
@@ -76,8 +88,20 @@ const Index = ({}: IndexProps) => {
       </View>
     );
   }
+  if (fixtureIsError) {
+    console.log("Error @Login: ", error);
+    return (
+      <View className="bg-background-light dark:bg-background-dark flex-1 items-center justify-center">
+        <Text className="text-red-500">{fixtureError.message}</Text>
+      </View>
+    );
+  }
 
   const { teams } = leagueData as League;
+  const fixture = buildCaptainFixture(
+    fixtureData ?? [],
+    session?.user?.id ?? ""
+  );
 
   const sportName = leagueData?.sport?.name ?? "";
 
@@ -137,9 +161,12 @@ const Index = ({}: IndexProps) => {
               Upcoming Fixtures
             </Text>
           </View>
+          {/* <Fixture {...fixture} />
           <Fixture {...fixture} />
-          <Fixture {...fixture} />
-          <Fixture {...fixture} />
+          <Fixture {...fixture} /> */}
+          {fixture.map((fixture) => (
+            <Fixture key={fixture.id} {...fixture} />
+          ))}
         </View>
 
         <View className="w-full my-8">
@@ -162,7 +189,7 @@ const Index = ({}: IndexProps) => {
               </DataTable.Cell>
             </View>
             {Object.values(team.stats).map((stat: any, idx: number) => {
-              console.log(stat);
+              // console.log(stat);
               if (stat !== team.stats.PTS)
                 return (
                   <DataTable.Cell key={idx}>

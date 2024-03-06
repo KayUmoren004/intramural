@@ -2,6 +2,7 @@ import Text from "@/components/ui/Text";
 import { Image } from "expo-image";
 import { View, StyleSheet } from "react-native";
 import { format } from "date-fns";
+import { AwayTeamType, HomeTeamType } from "@/lib/types/entities";
 
 type TeamType = {
   logo?: string;
@@ -29,14 +30,15 @@ const styles = StyleSheet.create({
   },
 });
 
-const Order = ({ name, teamId, type, logo }: TeamType) => {
-  switch (type) {
+const Order = ({ name, id, type, logo }: AwayTeamType | HomeTeamType) => {
+  const lType = type.toLowerCase();
+  switch (lType) {
     case "home":
       return (
         <View className="gap-2 flex flex-row items-center">
           <Text>{name}</Text>
           <Image
-            source={imageMap[type]}
+            source={imageMap[lType]}
             contentFit="fill"
             contentPosition="center"
             style={styles.img}
@@ -48,7 +50,7 @@ const Order = ({ name, teamId, type, logo }: TeamType) => {
       return (
         <View className="gap-2 flex flex-row items-center">
           <Image
-            source={imageMap[type]}
+            source={imageMap[lType]}
             contentFit="fill"
             contentPosition="center"
             style={styles.img}
@@ -62,10 +64,10 @@ const Order = ({ name, teamId, type, logo }: TeamType) => {
   }
 };
 
-export const Team = ({ name, teamId, type, logo }: TeamType) => {
+export const Team = ({ name, id, type, logo }: HomeTeamType | AwayTeamType) => {
   return (
     <View className="flex flex-row items-center justify-center w-[150px]">
-      <Order {...{ name, teamId, type, logo }} />
+      <Order {...{ name, id, type, logo }} />
     </View>
   );
 };
@@ -79,8 +81,8 @@ export const TimeComponent = ({ time }: { time: string }) => {
 };
 
 export const DateComponent = ({ date }: { date: string }) => {
-  const formattedDate = format(new Date(date), "PPP");
-  return <Text>{formattedDate}</Text>;
+  // const formattedDate = format(new Date(date), "PPP");
+  return <Text>{date}</Text>;
 };
 
 export const Results = ({ homeScore, awayScore, winner }: ResultsType) => {};

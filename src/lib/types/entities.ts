@@ -333,3 +333,45 @@ export type User = {
   school: School;
   [key: string]: any;
 };
+
+export type HomeTeamType = {
+  id: string;
+  logo: string;
+  name: string;
+  homeTeamId?: string;
+  team?: Team;
+  type: "Home";
+  fixtures?: Fixture[];
+};
+
+export type AwayTeamType = {
+  id: string;
+  logo: string;
+  name: string;
+  awayTeamId?: string;
+  team?: Team;
+  type: "Away";
+  fixtures?: Fixture[];
+};
+
+// Result Type
+export type Results = {
+  id: string;
+  homeId: string;
+  awayId: string;
+  winner: "Home" | "Away" | "Draw";
+  homeScore: number;
+  awayScore: number;
+  fixtures: Fixture[];
+};
+
+export type Fixture = {
+  id: string;
+  homeTeam: HomeTeamType;
+  awayTeam: AwayTeamType;
+  results: Results;
+  resultsId: string;
+  homeFixtureId: string;
+  awayFixtureId: string;
+  date: Date;
+};
