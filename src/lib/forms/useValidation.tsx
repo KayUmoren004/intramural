@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-
+import * as z from "zod";
 // // Login
 // export const LoginSchema = Yup.object().shape({
 //   email: Yup.string()
@@ -30,8 +30,8 @@ export const validateLogin = (domain: string) => {
   // Create a regular expression for the email to match the domain
   const domainRegex = new RegExp(`[\\w-.]+@${escapedDomain}`);
 
-  // Login Schema
-  const LoginSchema = Yup.object().shape({
+  // Login Schema using Yup
+  const LoginYup = Yup.object().shape({
     email: Yup.string()
       .email("Invalid email")
       .required("Required")
@@ -41,13 +41,29 @@ export const validateLogin = (domain: string) => {
       .required("Required"),
   });
 
-  // Forgot Password Schema
-  const ForgotSchema = Yup.object().shape({
+  // Login Schema using Zod
+  const LoginZod = z.object({
+    email: z
+      .string()
+      .email()
+      .includes(`@${domain}`, {
+        message: `Email must end with @${domain}`,
+      }),
+    password: z.string().min(6),
+  });
+
+  // Forgot Password Schema using Yup
+  const ForgotYup = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Required"),
   });
 
+  // Forgot Password Schema using Zod
+  const ForgotZod = z.object({
+    email: z.string().email(),
+  });
+
   // Return both schemas
-  return { LoginSchema, ForgotSchema };
+  return { LoginYup, LoginZod, ForgotYup, ForgotZod };
 };
 
 export const validateSignUp = (domain: string) => {
@@ -84,4 +100,12 @@ export const validateSignUp = (domain: string) => {
   });
 
   return { signUpSchema1, signUpSchema2 };
+};
+
+export const validateCreateTeam = () => {
+  const createTeamZod = z.object({
+    name: z.string().min(6).max(30),
+  });
+
+  return { createTeamZod };
 };

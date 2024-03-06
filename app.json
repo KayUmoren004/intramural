@@ -1,38 +1,28 @@
 {
   "expo": {
-    "name": "intramural",
-    "slug": "intramural",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/i2.png",
+    "scheme": "intramural",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "assetBundlePatterns": ["**/*"],
-    "scheme": "gu-intramural",
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
-    },
+    "orientation": "default",
     "web": {
-      "favicon": "./assets/favicon.png"
+      "output": "static",
+      "bundler": "metro"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "origin": "https://n"
+        }
+      ],
       [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
-    ]
+      ],
+      "expo-secure-store"
+    ],
+    "name": "intramural",
+    "slug": "intramural"
   }
 }
