@@ -1,7 +1,6 @@
-const { getDefaultConfig } = require("@expo/metro-config");
+const { getDefaultConfig } = require("expo/metro-config");
+const { withNativeWind } = require("nativewind/metro");
 
-const defaultConfig = getDefaultConfig(__dirname);
-defaultConfig.resolver.sourceExts.push("cjs");
-defaultConfig.resolver.resolverMainFields = ["react-native", "browser", "main"];
+const config = getDefaultConfig(__dirname);
 
-module.exports = defaultConfig;
+module.exports = withNativeWind(config, { input: "./src/global.css" });
