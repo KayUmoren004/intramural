@@ -24,8 +24,6 @@ const getSchool = async () => {
 };
 
 const getToken = async () => {
-  // return "test";
-
   const data: string = await getFromSecureStore("session");
   const session = JSON.parse(data);
 
@@ -52,8 +50,6 @@ const createInstance = (type: "test"): AxiosInstance => {
     instance.interceptors.request.use(async (config) => {
       const school = await getSchool();
       const token = await getToken();
-      // console.log("Token: ", token);
-      // console.log("School: ", school);
 
       if (school) {
         if (token) config.headers!.Authorization = `Bearer ${token}`;
@@ -67,7 +63,6 @@ const createInstance = (type: "test"): AxiosInstance => {
     (response) => response,
     (error) => {
       if (error.response) {
-        //   const school = getSchool();
         switch (error.request.status) {
           case 400:
             console.error("Bad request", error.response);

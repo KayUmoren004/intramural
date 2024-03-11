@@ -206,6 +206,38 @@ export type SportSettings = {
   required: boolean;
 };
 
+// id             String @id @default(uuid())
+// played         Int
+// wins           Int
+// draws          Int
+// loss           Int
+// goalsFor       Int
+// goalsAgainst   Int
+// goalDifference Int
+// points         Int
+// position       Int
+// teamId         String @unique
+// team           Team   @relation(fields: [teamId], references: [id])
+// leagueId       String
+// league         League @relation(fields: [leagueId], references: [id])
+
+export type SoccerTable = {
+  id: string;
+  played: number;
+  wins: number;
+  draws: number;
+  loss: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+  position: number;
+  teamId: string;
+  team: Team;
+  leagueId: string;
+  league: League;
+};
+
 export type League = {
   id: string;
   sportId: string; // Reference to associated sport
@@ -216,6 +248,7 @@ export type League = {
   sport: Sport;
   settings: LeagueSettings[];
   teams: Team[]; // List of teams associated with the league
+  soccerTable?: SoccerTable[];
 };
 
 export type LeagueSettings = {
@@ -240,6 +273,7 @@ export type Team = {
   league: League;
   players: Player[]; // List of players associated with the team
   sport: Sport;
+  shortName?: string;
 };
 
 export type Player = {
@@ -342,6 +376,7 @@ export type HomeTeamType = {
   team?: Team;
   type: "Home";
   fixtures?: Fixture[];
+  shorthand?: string;
 };
 
 export type AwayTeamType = {
@@ -352,6 +387,7 @@ export type AwayTeamType = {
   team?: Team;
   type: "Away";
   fixtures?: Fixture[];
+  shorthand?: string;
 };
 
 // Result Type

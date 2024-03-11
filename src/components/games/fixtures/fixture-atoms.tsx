@@ -1,6 +1,6 @@
-import Text from "@/components/ui/Text";
+// import Text from "@/components/ui/Text";
 import { Image } from "expo-image";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import { format } from "date-fns";
 import { AwayTeamType, HomeTeamType } from "@/lib/types/entities";
 
@@ -9,12 +9,6 @@ type TeamType = {
   name: string;
   teamId: string;
   type: "home" | "away";
-};
-
-type ResultsType = {
-  homeScore: number;
-  awayScore: number;
-  winner: "Home" | "Away" | "Draw";
 };
 
 const imageMap: { [key: string]: string } = {
@@ -36,7 +30,7 @@ const Order = ({ name, id, type, logo }: AwayTeamType | HomeTeamType) => {
     case "home":
       return (
         <View className="gap-2 flex flex-row items-center">
-          <Text>{name}</Text>
+          <Text className="font-bold">{name}</Text>
           <Image
             source={imageMap[lType]}
             contentFit="fill"
@@ -55,7 +49,7 @@ const Order = ({ name, id, type, logo }: AwayTeamType | HomeTeamType) => {
             contentPosition="center"
             style={styles.img}
           />
-          <Text>{name}</Text>
+          <Text className="font-bold">{name}</Text>
         </View>
       );
 
@@ -72,6 +66,19 @@ export const Team = ({ name, id, type, logo }: HomeTeamType | AwayTeamType) => {
   );
 };
 
+export const MiniTeam = ({
+  name,
+  id,
+  type,
+  logo,
+}: HomeTeamType | AwayTeamType) => {
+  return (
+    <View className="flex flex-row items-center justify-center ">
+      <Order {...{ name, id, type, logo }} />
+    </View>
+  );
+};
+
 export const TimeComponent = ({ time }: { time: string }) => {
   return (
     <View className="p-2 border border-neutral-200 rounded-xl">
@@ -80,9 +87,18 @@ export const TimeComponent = ({ time }: { time: string }) => {
   );
 };
 
+export const MiniTimeComponent = ({ time }: { time: string }) => {
+  return (
+    <View className="p-1 border border-neutral-200 rounded-md">
+      <Text className="text-xs ">{time}</Text>
+    </View>
+  );
+};
+
 export const DateComponent = ({ date }: { date: string }) => {
-  // const formattedDate = format(new Date(date), "PPP");
   return <Text>{date}</Text>;
 };
 
-export const Results = ({ homeScore, awayScore, winner }: ResultsType) => {};
+export const MiniDateComponent = ({ date }: { date: string }) => {
+  return <Text className="text-xs">{date}</Text>;
+};

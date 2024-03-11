@@ -2,7 +2,7 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
 import { Button, Text, TouchableOpacity, View } from "react-native";
 import { Stack } from "expo-router";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { useSession } from "@/lib/providers/auth-provider";
 import { useGetSport } from "@/hooks/sport/useSport";
 import Loading from "@/components/ui/Loading";
@@ -10,8 +10,23 @@ import { FlashList } from "@shopify/flash-list";
 import LeaguesList from "@/components/school/leagues-list";
 import { Divider } from "@rneui/themed";
 import useColor from "@/lib/colors/useColors";
+import { Icon } from "react-native-vector-icons/Icon";
 
 type IndexProps = {};
+
+const SportIconMap: { [key: string]: any } = {
+  soccer: <MaterialIcons name="sports-soccer" size={24} color="black" />,
+  basketball: (
+    <MaterialIcons name="sports-basketball" size={24} color="black" />
+  ),
+  volleyball: (
+    <MaterialIcons name="sports-volleyball" size={24} color="black" />
+  ),
+  baseball: <MaterialIcons name="sports-baseball" size={24} color="black" />,
+  tennis: <MaterialIcons name="sports-tennis" size={24} color="black" />,
+  golf: <MaterialIcons name="sports-golf" size={24} color="black" />,
+  football: <MaterialIcons name="sports-football" size={24} color="black" />,
+};
 
 const Index = ({}: IndexProps) => {
   const { school, sportId, sport } = useLocalSearchParams<{
@@ -76,8 +91,10 @@ const Index = ({}: IndexProps) => {
               data={leagues}
               keyExtractor={(item) => item.id}
               estimatedItemSize={50}
-              renderItem={({ item }) => <LeaguesList league={item} />}
-              ItemSeparatorComponent={() => <Divider color={colors.TEXT} />}
+              renderItem={({ item, index }) => (
+                <LeaguesList index={index} league={item} />
+              )}
+              // ItemSeparatorComponent={() => <Divider color={colors.TEXT} />}
             />
           </View>
         </View>

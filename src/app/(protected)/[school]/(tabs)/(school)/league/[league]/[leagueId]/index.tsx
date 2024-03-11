@@ -1,50 +1,47 @@
-import CustomTable from "@/components/custom-table/table";
-import Fixture, {
-  FixtureType,
-} from "@/components/games/fixtures/fixture-items";
-import CreateTeam from "@/components/school/create-team";
-import Table from "@/components/table";
-import Loading from "@/components/ui/Loading";
+import { Pressable } from "react-native";
 import {
+  FixtureType,
+  FixtureScroll,
+  ListFixture,
+  ListResult,
+  ListTable,
+  CreateTeam,
+  Loading,
   buildCaptainFixture,
-  buildFixtures,
-} from "@/hooks/fixture/fixture-utils";
-import { useGetLeagueFixtures } from "@/hooks/fixture/useFixture";
-import { useGetLeague } from "@/hooks/league/useLeague";
-import useColor from "@/lib/colors/useColors";
-import { useSession } from "@/lib/providers/auth-provider";
-import { type League, type Team } from "@/lib/types/entities";
-import { sportHeaders, sporttable } from "@/lib/types/headers";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
-import { FlashList } from "@shopify/flash-list";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
-import { Text, TouchableOpacity, View, Modal, ScrollView } from "react-native";
-import { DataTable } from "react-native-paper";
+  useGetLeagueFixtures,
+  useGetLeague,
+  useColor,
+  useSession,
+  League,
+  Stack,
+  useLocalSearchParams,
+  useRouter,
+  MoveRight,
+  useState,
+  MaterialIcons,
+  Text,
+  View,
+  Modal,
+  ScrollView,
+  TouchableOpacity,
+  FlashList,
+  type Team,
+} from "./imports";
+import { cn } from "@/lib/utils";
+import { useRefetchOnFocus } from "@/hooks/useRefectOnFocus";
 
 type IndexProps = {};
 
-const DefaultImageMap: { [key: string]: string } = {
-  home: "./home.png",
-  away: "./away.png",
-};
+// Sort fixtures by date
+const sortFixturesByDate = (fixtures: FixtureType[]) => {
+  if (!fixtures || fixtures.length < 1) return null;
 
-// const fixture: FixtureType = {
-//   homeTeam: {
-//     logo: "",
-//     name: "Home Team",
-//     teamId: "1",
-//     type: "home",
-//   },
-//   awayTeam: {
-//     logo: "",
-//     name: "Away Team",
-//     teamId: "2",
-//     type: "away",
-//   },
-//   date: "2022-01-01",
-//   time: "12:00 PM",
-// };
+  return fixtures.sort(
+    (a, b) =>
+      new Date(a.isoDate ?? a.date).getTime() -
+      new Date(b.isoDate ?? b.date).getTime()
+  );
+};
 
 const Index = ({}: IndexProps) => {
   const { school, league, leagueId, sportId } = useLocalSearchParams<{
@@ -56,14 +53,16 @@ const Index = ({}: IndexProps) => {
 
   const { session } = useSession();
   const { replace, push } = useRouter();
-  const colors = useColor();
   const [modalOpen, setModalOpen] = useState(false);
+
+  const { BACKGROUND, PRIMARY, TEXT } = useColor();
 
   const {
     data: leagueData,
     isLoading,
     isError,
     error,
+    refetch,
   } = useGetLeague(sportId as string, leagueId as string);
 
   const {
@@ -71,7 +70,11 @@ const Index = ({}: IndexProps) => {
     isLoading: fixtureLoading,
     isError: fixtureIsError,
     error: fixtureError,
+    refetch: refetchFixture,
   } = useGetLeagueFixtures(leagueId as string);
+
+  useRefetchOnFocus(refetch, true);
+  useRefetchOnFocus(refetchFixture, true);
 
   if (isLoading || fixtureLoading)
     return (
@@ -98,42 +101,48 @@ const Index = ({}: IndexProps) => {
   }
 
   const { teams } = leagueData as League;
+  const { soccerTable } = leagueData as League;
+
   const fixture = buildCaptainFixture(
     fixtureData ?? [],
     session?.user?.id ?? ""
   );
 
-  const sportName = leagueData?.sport?.name ?? "";
+  const team =
+    teams.find((team) => team.captainId === session?.user?.id) ??
+    teams.find((team) =>
+      team?.players?.find((player) => player?.userId === session?.user?.id)
+    );
+  const teamId = team?.id;
 
-  const sportNameInCamelCase = sportName
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
-      return index === 0 ? word.toLowerCase() : word.toUpperCase();
-    })
-    .replace(/\s+/g, "");
+  // Find the standings for the current team
+  const standings = soccerTable?.find((table) => table.teamId === teamId);
 
-  const header = sportHeaders[sportNameInCamelCase];
+  const sortedFixtures = sortFixturesByDate(fixture ?? []);
 
-  const table: sporttable = {
-    headers: header,
-    teams: FakeData.slice(0, 3),
-  };
+  // Find the index of the fixture that is closest to the current date
+  const closestFixtureIndex =
+    sortedFixtures &&
+    sortedFixtures?.findIndex((fixture) => {
+      const fixtureDate = new Date(fixture.isoDate ?? fixture.date);
+      const today = new Date();
+      return fixtureDate.setHours(0, 0, 0, 0) >= today.setHours(0, 0, 0, 0);
+    });
 
-  // Find team by captainId
-  const team = {
-    position: 1,
-    Team: "FC Awesome",
-    stats: {
-      GP: 10,
-      W: 6,
-      T: 2,
-      L: 2,
-      // "+/-": "20-10",
-      GD: 10,
-      PTS: 20,
-    },
-    Form: "W-L-W-W-T",
-  };
-  // const team = teams.find((team) => team.captainId === session?.user?.id);
+  const closestFixture =
+    sortedFixtures && closestFixtureIndex !== null
+      ? sortedFixtures[closestFixtureIndex]
+      : null;
+
+  // Find the index of the previous fixture closest to the current date
+  const previousFixtureIndex =
+    closestFixtureIndex !== null ? closestFixtureIndex - 1 : null;
+  const previousFixture =
+    sortedFixtures && previousFixtureIndex !== null
+      ? sortedFixtures[previousFixtureIndex]
+      : null;
+
+  const hasTeam = team?.captainId === session?.user?.id;
 
   return (
     <>
@@ -143,85 +152,70 @@ const Index = ({}: IndexProps) => {
         }}
       />
       <ScrollView
-        contentContainerStyle={{
-          flex: 1,
-          alignItems: "flex-start",
-          // justifyContent: "space-between",
-          gap: 8,
-          width: "100%",
-          padding: 8,
-        }}
-        style={{ flex: 1 }}
-        className=" bg-background-light dark:bg-background-dark"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName={cn(
+          "bg-background-light dark:bg-background-dark p-2 gap-4"
+        )}
       >
-        <View className="w-full gap-2">
-          {/* TODO: Limit to 3 fixtures in the current week */}
-          <View className="flex flex-row items-center justify-between w-full border-b border-neutral-400 pb-2">
-            <Text className="text-text-light dark:text-text-dark text-2xl">
-              Upcoming Fixtures
-            </Text>
+        {/* Header */}
+        {fixture && fixture?.length > 0 && (
+          <View className="bg-background-light dark:bg-background-dark py-4  gap-2 border-b border-neutral-400 dark:border-neutral-600">
+            <View className="gap-4">
+              <Text className="text-text-light dark:text-text-dark text-xl font-bold">
+                {team?.shortName ?? team?.name} Matches
+              </Text>
+              <FixtureScroll fixtures={fixture} />
+            </View>
           </View>
-          {/* <Fixture {...fixture} />
-          <Fixture {...fixture} />
-          <Fixture {...fixture} /> */}
-          {fixture.map((fixture) => (
-            <Fixture key={fixture.id} {...fixture} />
-          ))}
+        )}
+
+        <View className="bg-background-light dark:bg-background-dark items-start justify-start w-full px-1 gap-4 b">
+          <LeagueCard header="Fixture">
+            <View className="flex-row justify-between items-center">
+              <View>
+                <Text className="dark:text-text-light text-text-dark">
+                  {closestFixture?.date ?? "No fixture available"}
+                </Text>
+              </View>
+              <View>
+                {closestFixture && <ListFixture {...closestFixture} />}
+              </View>
+            </View>
+          </LeagueCard>
+          <LeagueCard header="Results">
+            <View className="flex-row justify-between items-center">
+              <View>
+                <Text className="dark:text-text-light text-text-dark">
+                  {previousFixture?.date ?? "No results available"}
+                </Text>
+              </View>
+              <View>
+                {previousFixture && <ListResult {...previousFixture} />}
+              </View>
+            </View>
+          </LeagueCard>
+          <LeagueCard header="Tables">
+            {fixtureData && <ListTable data={standings ?? null} />}
+          </LeagueCard>
         </View>
 
-        <View className="w-full my-8">
-          <View className="flex flex-row items-center justify-between w-full border-b border-neutral-400 pb-2">
-            <Text className="text-text-light dark:text-text-dark text-2xl">
-              Standings
-            </Text>
-          </View>
-          <DataTable.Row>
-            <DataTable.Cell>
-              <Text className="text-white dark:text-text-dark">
-                {team.position}
-              </Text>
-            </DataTable.Cell>
-            <View className="w-1/2">
-              <DataTable.Cell>
-                <Text className="text-white dark:text-text-dark">
-                  {team.Team}
-                </Text>
-              </DataTable.Cell>
-            </View>
-            {Object.values(team.stats).map((stat: any, idx: number) => {
-              // console.log(stat);
-              if (stat !== team.stats.PTS)
-                return (
-                  <DataTable.Cell key={idx}>
-                    <Text className="text-white dark:text-text-dark"> </Text>
-                  </DataTable.Cell>
-                );
-              return (
-                <DataTable.Cell key={idx}>
-                  <View className="w-full">
-                    <Text className="text-white dark:text-text-dark ">
-                      {stat} pts
-                    </Text>
-                  </View>
-                </DataTable.Cell>
-              );
-            })}
-          </DataTable.Row>
-        </View>
+        {/* Divider */}
+        <View className="w-full h-px " />
 
         {/* List of Teams in the league */}
         <View className="flex flex-col items-start w-full ">
-          <View className="flex flex-row items-center justify-between w-full border-b border-neutral-400 pb-2">
-            <Text className="text-text-light dark:text-text-dark text-2xl">
+          <View className="flex flex-row items-center justify-between w-full border-b border-neutral-400 dark:border-neutral-600 pb-2">
+            <Text className="text-text-light dark:text-text-dark font-bold text-2xl">
               Teams
             </Text>
-            <TouchableOpacity
-              className="p-1 border border-primary rounded-lg "
-              onPress={() => setModalOpen(!modalOpen)}
-            >
-              {/* <Feather name="plus" size={20} color={colors.PRIMARY} /> */}
-              <Text className="text-primary">Create Team</Text>
-            </TouchableOpacity>
+            {!hasTeam && (
+              <TouchableOpacity
+                className="p-1 border border-primary rounded-lg "
+                onPress={() => setModalOpen(!modalOpen)}
+              >
+                <Text className="text-primary">Create Team</Text>
+              </TouchableOpacity>
+            )}
           </View>
           <View className="w-full h-full mt-4">
             <FlashList
@@ -252,11 +246,41 @@ const Index = ({}: IndexProps) => {
   );
 };
 
+const LeagueCard = ({
+  header,
+  children,
+  onPress,
+}: {
+  header: string;
+  children?: React.ReactNode;
+  onPress?: () => void;
+}) => {
+  return (
+    <Pressable onPress={onPress}>
+      <View className="w-full h-24 border border-neutral-300 rounded flex flex-col items-start justify-between bg-black dark:bg-white">
+        <View className="w-full flex-row items-center justify-between border-b border-neutral-300 p-2">
+          <Text className="dark:text-text-light text-text-dark text-2xl">
+            {header}
+          </Text>
+          <MoveRight />
+        </View>
+        <View className="w-full p-2 ">
+          {children ?? (
+            <Text className="dark:text-text-light text-text-dark">
+              No {header} available
+            </Text>
+          )}
+        </View>
+      </View>
+    </Pressable>
+  );
+};
+
 const LeagueTeams = ({ team }: { team: Team }) => {
   const name = team?.name ?? "Team Unkown";
   const captainName = team?.captain?.name;
   const id = team?.id ?? "0";
-  const logoUrl = team?.logoUrl ?? DefaultImageMap.home;
+  // const logoUrl = team?.logoUrl ?? DefaultImageMap.home;
   const leagueId = team?.leagueId;
 
   const { push } = useRouter();
@@ -293,77 +317,3 @@ const LeagueTeams = ({ team }: { team: Team }) => {
 };
 
 export default Index;
-
-const FakeData = [
-  {
-    position: 1,
-    Team: "FC Awesome",
-    stats: {
-      GP: 10,
-      W: 6,
-      T: 2,
-      L: 2,
-      // "+/-": "20-10",
-      GD: 10,
-      PTS: 20,
-    },
-    Form: "W-L-W-W-T",
-  },
-  {
-    position: 2,
-    Team: "Eagles United",
-    stats: {
-      GP: 10,
-      W: 5,
-      T: 3,
-      L: 2,
-      // "+/-": "10-5",
-      GD: 5,
-      PTS: 18,
-    },
-    Form: "W-T-L-W-T",
-  },
-  {
-    position: 3,
-    Team: "River City",
-    stats: {
-      GP: 10,
-      W: 3,
-      T: 4,
-      L: 3,
-      // "+/-": "1-3",
-      GD: -1,
-      PTS: 13,
-    },
-    Form: "T-T-W-L-T",
-  },
-  {
-    position: 4,
-    Team: "Mountain Rovers",
-    stats: {
-      GP: 10,
-      W: 2,
-      T: 5,
-      L: 3,
-      // "+/-": "10-10",
-      GD: 0,
-      PTS: 11,
-    },
-    Form: "T-T-T-W-L",
-  },
-  {
-    position: 5,
-    Team: "Seaside FC",
-    stats: {
-      GP: 10,
-      W: 1,
-      T: 6,
-      L: 3,
-      // "+/-": "2-5",
-      GD: -3,
-      PTS: 9,
-    },
-
-    Form: "L-T-T-T-T",
-  },
-];

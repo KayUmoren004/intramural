@@ -48,8 +48,6 @@ export default function App() {
     );
   }
 
-  // console.log("Sports: ", sports);
-
   return (
     <SafeAreaView className="flex-1 items-start justify-start bg-background-light dark:bg-background-dark">
       {/* Header */}

@@ -79,25 +79,21 @@ export function SessionProvider(props: React.PropsWithChildren) {
   });
 
   useEffect(() => {
+    // setSession(null);
     let intervalId: NodeJS.Timeout;
-    // console.log("listening for token expiration");
 
     const actualSession = session ? JSON.parse(session) : null;
 
     const attemptTokenRefresh = async () => {
       try {
-        // console.log("Attempting token refresh");
         const refreshedToken = await refreshToken(
           actualSession.backendToken.refreshToken
         );
-        // console.log("Token refreshed: ", refreshedToken);
 
         const newSession: Session = {
           ...actualSession,
           backendToken: refreshedToken,
         };
-
-        // console.log("New session: ", newSession);
 
         setSession(JSON.stringify(newSession));
       } catch (error: any) {
@@ -110,17 +106,13 @@ export function SessionProvider(props: React.PropsWithChildren) {
     };
 
     if (actualSession && actualSession.backendToken) {
-      // console.log("Session found, scheduling token refresh");
-
       const expiresInTimestamp = actualSession.backendToken.expiresIn;
-      // console.log("Token expires at (timestamp): ", expiresInTimestamp);
 
       const now = new Date().getTime();
       const delay = expiresInTimestamp - now - 60000; // Refresh 1 minute before expiration
-      // console.log("Calculated delay for refresh: ", delay);
 
       if (delay > 0) {
-        console.log("Setting timeout with delay: ", delay);
+        // console.log("Setting timeout with delay: ", delay);
         intervalId = setTimeout(attemptTokenRefresh, delay);
       } else {
         console.log(

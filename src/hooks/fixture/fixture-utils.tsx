@@ -36,13 +36,21 @@ export const buildFixture = (data: Fixture) => {
   const date = data.date;
   const time = data.date;
   const id = data.id;
+  const results = data.results ?? null;
 
   const val: FixtureType = {
     homeTeam,
     awayTeam,
     date: format(new Date(date), "PPP"),
-    time: format(new Date(time), "p"),
+    time: format(new Date(time), "hh:mm a"),
     id,
+    isoDate: date,
+    result:
+      {
+        homeScore: results?.homeScore ?? 0,
+        awayScore: results?.awayScore ?? 0,
+        winner: results?.winner ?? "Draw",
+      } ?? null,
   };
 
   return val;
@@ -59,6 +67,8 @@ export const buildFixtures = (data: Fixture[]) => {
 
 // Build Fixtures based on captain Id
 export const buildCaptainFixture = (data: Fixture[], captainId: string) => {
+  if (!captainId || !data) return null;
+
   const fixtures = data
     .filter((fixture) => {
       return (

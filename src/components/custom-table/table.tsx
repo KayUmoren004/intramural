@@ -3,22 +3,20 @@ import Text from "../ui/Text";
 import { sporttable } from "@/lib/types/headers";
 
 const CustomTable = () => {
-    // Convert sportName to camel case (e.g., "Cross Country" to "crossCountry")
+  // Convert sportName to camel case (e.g., "Cross Country" to "crossCountry")
   const sportNameInCamelCase = sportName
     .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
       return index === 0 ? word.toLowerCase() : word.toUpperCase();
     })
     .replace(/\s+/g, "");
 
-      // Find the correct headers for the sport (camel case keys)
+  // Find the correct headers for the sport (camel case keys)
   const header = sportHeaders[sportNameInCamelCase];
-  
 
   const table: sporttable = {
     headers: header,
     teams: getSportData(sportName) ?? [],
   };
-
 
   return (
     <View className="w-full">
@@ -72,7 +70,7 @@ const CustomTable = () => {
 export default CustomTable;
 
 const FakeData: sporttable = [
-    {
+  {
     position: 1,
     Team: "FC Awesome",
     stats: {
@@ -143,139 +141,137 @@ const FakeData: sporttable = [
 
     Form: "L-T-T-T-T",
   },
-]
-  // head: {
-  //   left: {
-  //     pos: {
-  //       key: "pos",
-  //       label: "Pos",
-  //     },
-  //     club: {
-  //       key: "club",
-  //       label: "Club",
-  //     },
-  //   },
-  //   right: {
-  //     pl: {
-  //       key: "pl",
-  //       label: "PL",
-  //     },
-  //     w: {
-  //       key: "w",
-  //       label: "W",
-  //     },
-  //     d: {
-  //       key: "d",
-  //       label: "D",
-  //     },
-  //     l: {
-  //       key: "l",
-  //       label: "L",
-  //     },
-  //     gd: {
-  //       key: "gd",
-  //       label: "GD",
-  //     },
-  //     pts: {
-  //       key: "pts",
-  //       label: "PTS",
-  //     },
-  //   },
-  // },
-  // body: {
-  //   1: {
-  //     left: {
-  //       pos: 1,
-  //       club: {
-  //         logo: "",
-  //         name: "Chelsea",
-  //         shortName: "CHE",
-  //       },
-  //     },
-  //     right: {
-  //       pl: 26,
-  //       w: 18,
-  //       d: 6,
-  //       l: 2,
-  //       gd: 38,
-  //       pts: 60,
-  //     },
-  //   },
-  //   2: {
-  //     left: {
-  //       pos: 2,
-  //       club: {
-  //         logo: "",
-  //         name: "Liverpool",
-  //         shortName: "LIV",
-  //       },
-  //     },
-  //     right: {
-  //       pl: 26,
-  //       w: 17,
-  //       d: 7,
-  //       l: 2,
-  //       gd: 36,
-  //       pts: 58,
-  //     },
-  //   },
-  //   3: {
-  //     left: {
-  //       pos: 3,
-  //       club: {
-  //         logo: "",
-  //         name: "Manchester City",
-  //         shortName: "MCI",
-  //       },
-  //     },
-  //     right: {
-  //       pl: 25,
-  //       w: 16,
-  //       d: 5,
-  //       l: 4,
-  //       gd: 36,
-  //       pts: 53,
-  //     },
-  //   },
-  //   4: {
-  //     left: {
-  //       pos: 4,
-  //       club: {
-  //         logo: "",
-  //         name: "West Ham United",
-  //         shortName: "WHU",
-  //       },
-  //     },
-  //     right: {
-  //       pl: 26,
-  //       w: 14,
-  //       d: 6,
-  //       l: 6,
-  //       gd: 12,
-  //       pts: 48,
-  //     },
-  //   },
-  //   5: {
-  //     left: {
-  //       pos: 5,
-  //       club: {
-  //         logo: "",
-  //         name: "Tottenham Hotspur",
-  //         shortName: "TOT",
-  //       },
-  //     },
-  //     right: {
-  //       pl: 25,
-  //       w: 13,
-  //       d: 6,
-  //       l: 6,
-  //       gd: 21,
-  //       pts: 45,
-  //     },
-  //   },
-  // },
-  
-}
+];
+// head: {
+//   left: {
+//     pos: {
+//       key: "pos",
+//       label: "Pos",
+//     },
+//     club: {
+//       key: "club",
+//       label: "Club",
+//     },
+//   },
+//   right: {
+//     pl: {
+//       key: "pl",
+//       label: "PL",
+//     },
+//     w: {
+//       key: "w",
+//       label: "W",
+//     },
+//     d: {
+//       key: "d",
+//       label: "D",
+//     },
+//     l: {
+//       key: "l",
+//       label: "L",
+//     },
+//     gd: {
+//       key: "gd",
+//       label: "GD",
+//     },
+//     pts: {
+//       key: "pts",
+//       label: "PTS",
+//     },
+//   },
+// },
+// body: {
+//   1: {
+//     left: {
+//       pos: 1,
+//       club: {
+//         logo: "",
+//         name: "Chelsea",
+//         shortName: "CHE",
+//       },
+//     },
+//     right: {
+//       pl: 26,
+//       w: 18,
+//       d: 6,
+//       l: 2,
+//       gd: 38,
+//       pts: 60,
+//     },
+//   },
+//   2: {
+//     left: {
+//       pos: 2,
+//       club: {
+//         logo: "",
+//         name: "Liverpool",
+//         shortName: "LIV",
+//       },
+//     },
+//     right: {
+//       pl: 26,
+//       w: 17,
+//       d: 7,
+//       l: 2,
+//       gd: 36,
+//       pts: 58,
+//     },
+//   },
+//   3: {
+//     left: {
+//       pos: 3,
+//       club: {
+//         logo: "",
+//         name: "Manchester City",
+//         shortName: "MCI",
+//       },
+//     },
+//     right: {
+//       pl: 25,
+//       w: 16,
+//       d: 5,
+//       l: 4,
+//       gd: 36,
+//       pts: 53,
+//     },
+//   },
+//   4: {
+//     left: {
+//       pos: 4,
+//       club: {
+//         logo: "",
+//         name: "West Ham United",
+//         shortName: "WHU",
+//       },
+//     },
+//     right: {
+//       pl: 26,
+//       w: 14,
+//       d: 6,
+//       l: 6,
+//       gd: 12,
+//       pts: 48,
+//     },
+//   },
+//   5: {
+//     left: {
+//       pos: 5,
+//       club: {
+//         logo: "",
+//         name: "Tottenham Hotspur",
+//         shortName: "TOT",
+//       },
+//     },
+//     right: {
+//       pl: 25,
+//       w: 13,
+//       d: 6,
+//       l: 6,
+//       gd: 21,
+//       pts: 45,
+//     },
+//   },
+// },
 
 type Club = {
   logo: string;

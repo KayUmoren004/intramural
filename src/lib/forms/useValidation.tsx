@@ -105,6 +105,7 @@ export const validateSignUp = (domain: string) => {
 export const validateCreateTeam = () => {
   const createTeamZod = z.object({
     name: z.string().min(6).max(30),
+    shortName: z.string().min(3).max(3),
   });
 
   return { createTeamZod };

@@ -25,10 +25,14 @@ type CreateTeamProps = {
 
 type ValueType = {
   name: string;
+  shortName: string;
 };
+
+const shortNameSuffix = [];
 
 const defaultValues: ValueType = {
   name: "",
+  shortName: "",
 };
 
 const CreateTeam = ({ captainId, leagueId, setModalOpen }: CreateTeamProps) => {
@@ -66,7 +70,7 @@ const CreateTeam = ({ captainId, leagueId, setModalOpen }: CreateTeamProps) => {
 
   // Submit Flow
   const SubmitFlow = async (values: ValueType) => {
-    const { name } = values;
+    const { name, shortName } = values;
 
     setLoading(true);
 
@@ -76,6 +80,7 @@ const CreateTeam = ({ captainId, leagueId, setModalOpen }: CreateTeamProps) => {
         leagueId: leagueId as string,
         captainId,
         logoUrl: "",
+        shortName,
       });
     } catch (error: any) {
       console.log("Error @Create-Team.SubmitFlow: ", error);
@@ -112,6 +117,18 @@ const CreateTeam = ({ captainId, leagueId, setModalOpen }: CreateTeamProps) => {
         />
         {/* Spacer */}
         <View style={{ height: 10 }} />
+
+        {/* Team Short Name */}
+        <AuthInput
+          config={{
+            placeholder: "Short Name",
+            textContentType: "name",
+            keyboardType: "default",
+            maxLength: 3,
+          }}
+          control={control}
+          name="shortName"
+        />
 
         <View>
           {/* Submit */}
