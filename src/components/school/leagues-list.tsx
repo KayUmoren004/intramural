@@ -27,11 +27,15 @@ const LeaguesList = ({ league, index }: LeaguesListProps) => {
         })
       }
       className={cn(
-        "flex flex-1 items-start justify bg-background-light dark:bg-background-dark w-full py-4 px-2 rounded mb-1.5 border-b border-red-500"
+        "flex flex-row flex-1 items-start justify bg-background-light dark:bg-background-dark w-full py-4 px-2 rounded mb-1.5 border-b border-red-500"
       )}
     >
-      <Text className="text-text-light dark:text-text-dark">{index}</Text>
-      <Text className="text-text-light dark:text-text-dark">{name}</Text>
+      <Text className="text-text-light dark:text-text-dark mr-4">
+        {index + 1}
+      </Text>
+      <Text className="text-text-light dark:text-text-dark font-bold">
+        {name}
+      </Text>
     </TouchableOpacity>
   );
 };

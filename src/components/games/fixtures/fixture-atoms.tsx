@@ -58,10 +58,57 @@ const Order = ({ name, id, type, logo }: AwayTeamType | HomeTeamType) => {
   }
 };
 
+const OrderBlack = ({ name, id, type, logo }: AwayTeamType | HomeTeamType) => {
+  const lType = type.toLowerCase();
+  switch (lType) {
+    case "home":
+      return (
+        <View className="gap-2 flex flex-row">
+          <Text className="font-bold text-white">{name}</Text>
+          <Image
+            source={imageMap[lType]}
+            contentFit="fill"
+            contentPosition="center"
+            style={styles.img}
+          />
+        </View>
+      );
+
+    case "away":
+      return (
+        <View className="gap-2 flex flex-row">
+          <Image
+            source={imageMap[lType]}
+            contentFit="fill"
+            contentPosition="center"
+            style={styles.img}
+          />
+          <Text className="font-bold text-white">{name}</Text>
+        </View>
+      );
+
+    default:
+      break;
+  }
+};
+
 export const Team = ({ name, id, type, logo }: HomeTeamType | AwayTeamType) => {
   return (
     <View className="flex flex-row items-center justify-center w-[150px]">
       <Order {...{ name, id, type, logo }} />
+    </View>
+  );
+};
+
+export const TeamBlack = ({
+  name,
+  id,
+  type,
+  logo,
+}: HomeTeamType | AwayTeamType) => {
+  return (
+    <View className="flex flex-row items-center justify-center">
+      <OrderBlack {...{ name, id, type, logo }} />
     </View>
   );
 };
@@ -83,6 +130,14 @@ export const TimeComponent = ({ time }: { time: string }) => {
   return (
     <View className="p-2 border border-neutral-200 rounded-xl">
       <Text>{time}</Text>
+    </View>
+  );
+};
+
+export const TimeComponentBlack = ({ time }: { time: string }) => {
+  return (
+    <View className="p-2 border border-neutral-200 rounded-xl">
+      <Text className="text-white">{time}</Text>
     </View>
   );
 };

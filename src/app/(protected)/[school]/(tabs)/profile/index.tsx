@@ -15,6 +15,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
+  Pressable,
 } from "react-native";
 
 import * as FileSystem from "expo-file-system";
@@ -27,6 +28,8 @@ import { useSession } from "@/lib/providers/auth-provider";
 import useColor from "@/lib/colors/useColors";
 import { League, PlayerStats, Team, User } from "@/lib/types/entities";
 import Information from "@/components/profile/Information";
+import { UpdateAvatarModal } from "@/components/avatars/UpdateAvatarModal";
+import { UpdateSettingsModal } from "@/components/profile/SettingsModal";
 
 // Check if local image exists on device, if not, return false
 const localImageExists = async (local: string) => {
@@ -40,157 +43,170 @@ const localImageExists = async (local: string) => {
 
 export default function App() {
   const { school } = useGlobalSearchParams();
-  const { session } = useSession();
-  console.log(session);
+  const { session, signOut } = useSession();
+  // console.log(session);
 
   const Colors = useColor();
   const userData: User | undefined = session?.user;
+  const [photo, setPhoto] = useState<{ uri: string; blurhash: string } | null>(
+    null
+  );
 
-  // const { image } = userData;
-  // const { local, url } = image;
+  const { avatarUrl, blurhash } = userData as User;
 
   const IMG_HEIGHT = Dimensions.get("window").height * 0.17;
   const SCREEN_WIDTH = Dimensions.get("window").width;
-  const PROFILE_IMAGE_SIZE = 100; // Assuming this is the size of your profile image
+  const PROFILE_IMAGE_SIZE = 100;
   const centerProfileImage = (SCREEN_WIDTH - PROFILE_IMAGE_SIZE) / 2;
-  const PROFILE_IMAGE_OFFSET = IMG_HEIGHT - 50; // Adjust this as needed
+  const PROFILE_IMAGE_OFFSET = IMG_HEIGHT - 50;
 
   const insets = useSafeAreaInsets();
 
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [modalOpenSettings, setModalOpenSettings] = useState<boolean>(false);
+
+  const onPhotoChange = (avatar: { uri: string; blurhash: string }) => {
+    setPhoto(avatar);
+  };
+
   return (
-    <View className="flex flex-1 items-center justify-between bg-background-light dark:bg-background-dark">
-      <View style={{ width: "100%", flex: 1 }}>
-        {/* Cover Image and Settings */}
-        <View style={{ width: "100%", height: IMG_HEIGHT }}>
-          <CachedImage
-            source={{ uri: userData?.bio ?? "", expiresIn: 2_628_288 }}
-            cacheKey={`${userData?.uid}-profile-cover`}
-            placeholderContent={
-              <Image
-                style={{ width: "100%", height: IMG_HEIGHT }}
-                onError={(e) => console.log(e)}
-                placeholder={userData?.image_blurhash}
-                cachePolicy="disk"
-              />
-            }
-            resizeMode="cover"
-            style={{ width: "100%", height: IMG_HEIGHT }}
-          />
-          <View
-            style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              marginTop: insets.top - 15,
-              marginRight: 15,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              borderRadius: 50,
-              padding: 10,
-            }}
-          >
-            <TouchableOpacity onPress={() => console.log("Settings")}>
-              <Feather name="settings" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        </View>
-        {/* Profile Image and User Data */}
-        <View style={{ alignItems: "center", flex: 1 }}>
-          {/* Profile Image */}
-          <View
-            style={{
-              backgroundColor: Colors.BACKGROUND,
-              borderRadius: 100,
-              padding: 4,
-              top: -PROFILE_IMAGE_OFFSET / 2,
-              marginBottom: -PROFILE_IMAGE_OFFSET / 2,
-            }}
-          >
-            <CachedImage
-              source={{ uri: userData?.bio ?? "", expiresIn: 2_628_288 }}
-              cacheKey={`${userData?.id}-profile-main`}
-              placeholderContent={
-                <Image
-                  style={{ width: 100, height: 100 }}
-                  onError={(e) => console.log(e)}
-                  placeholder={userData?.image_blurhash}
-                  cachePolicy="disk"
-                />
-              }
-              resizeMode="cover"
-              style={{ width: 100, height: 100, borderRadius: 64 }}
+    <>
+      <View className="flex flex-1 items-center justify-between bg-background-light dark:bg-background-dark">
+        <View style={{ width: "100%", flex: 1 }}>
+          {/* Cover Image and Settings */}
+          <View style={{ width: "100%", height: IMG_HEIGHT }}>
+            <Image
+              style={{ width: "100%", height: IMG_HEIGHT }}
+              onError={(e) => console.log("Error (Profile Cover): ", e)}
+              placeholder={blurhash}
+              cachePolicy="memory-disk"
+              source={{ uri: photo?.uri ?? avatarUrl ?? "" }}
             />
+
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                marginTop: insets.top - 15,
+                marginRight: 15,
+                backgroundColor: "rgba(0,0,0,0.5)",
+                borderRadius: 50,
+                padding: 10,
+              }}
+            >
+              <TouchableOpacity onPress={() => setModalOpen(true)}>
+                <Feather name="settings" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
           </View>
 
-          {/* User Data View */}
-          <View className="w-full flex flex-1">
-            {/* Name and Bio */}
-            <View className="flex flex-col items-center justify-center mb-2">
-              <View
-                style={{
-                  marginBottom: 10,
-                }}
-              >
-                <Text className="text-text-light dark:text-text-dark text-3xl text-center font-bold">
-                  {userData?.name ?? "User"}
-                </Text>
-                <Text
-                  style={{
-                    opacity: 0.5,
-                  }}
-                  className="text-text-light dark:text-text-dark text-sm text-center"
-                >
-                  {userData?.bio ?? "Bio"}
-                </Text>
-              </View>
+          {/* Profile Image and User Data */}
+          <View style={{ alignItems: "center", flex: 1 }}>
+            {/* Profile Image */}
+            <Pressable
+              onPress={() => setModalOpen(true)}
+              style={{
+                backgroundColor: Colors.BACKGROUND,
+                borderRadius: 100,
+                padding: 4,
+                top: -PROFILE_IMAGE_OFFSET / 2,
+                marginBottom: -PROFILE_IMAGE_OFFSET / 2,
+              }}
+            >
+              <Image
+                style={{ width: 100, height: 100, borderRadius: 64 }}
+                onError={(e) => console.log("Error (Profile Image): ", e)}
+                placeholder={blurhash}
+                cachePolicy="memory-disk"
+                source={{ uri: photo?.uri ?? avatarUrl ?? "" }}
+              />
+            </Pressable>
 
-              {/* School */}
-              <View className="flex flex-row items-center justify-center w-full mt-5">
-                <View className="flex flex-row items-center justify-center">
-                  <Ionicons
-                    name="school-outline"
-                    size={16}
-                    color={Colors.TEXT}
-                    style={{ marginRight: 8 }}
-                  />
-                  <Text className="text-text-light dark:text-text-dark text-sm text-center uppercase">
-                    {school?.toString().toUpperCase() ?? "School"}
+            {/* User Data View */}
+            <View className="w-full flex flex-1">
+              {/* Name and Bio */}
+              <View className="flex flex-col items-center justify-center mb-2">
+                <View
+                  style={{
+                    marginBottom: 10,
+                  }}
+                >
+                  <Text className="text-text-light dark:text-text-dark text-3xl text-center font-bold">
+                    {userData?.name ?? "User"}
+                  </Text>
+                  <Text
+                    style={{
+                      opacity: 0.5,
+                    }}
+                    className="text-text-light dark:text-text-dark text-sm text-center"
+                  >
+                    {userData?.bio ?? "Bio"}
                   </Text>
                 </View>
+
+                {/* School */}
+                <View className="flex flex-row items-center justify-center w-full mt-5">
+                  <View className="flex flex-row items-center justify-center">
+                    <Ionicons
+                      name="school-outline"
+                      size={16}
+                      color={Colors.TEXT}
+                      style={{ marginRight: 8 }}
+                    />
+                    <Text className="text-text-light dark:text-text-dark text-sm text-center uppercase">
+                      {school?.toString().toUpperCase() ?? "School"}
+                    </Text>
+                  </View>
+                </View>
               </View>
-            </View>
 
-            {/* Body */}
-            <View className="flex flex-1">
-              <ScrollView
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-                className=""
-              >
-                {/* Current Season Information */}
-                <View className="">
-                  <Information
-                    type="currentSeason"
-                    title="Current Season"
-                    data={currentSeason}
-                  />
-                </View>
+              {/* Body */}
+              <View className="flex flex-1">
+                <ScrollView
+                  showsHorizontalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  className=""
+                >
+                  {/* Current Season Information */}
+                  <View className="">
+                    <Information
+                      type="currentSeason"
+                      title="Current Season"
+                      data={currentSeason}
+                    />
+                  </View>
 
-                {/* PlayerStats */}
-                <View>
-                  <Information
-                    type="playerStats"
-                    title="Player Stats"
-                    data={currentSeason}
-                  />
-                </View>
-              </ScrollView>
+                  {/* PlayerStats */}
+                  <View>
+                    <Information
+                      type="playerStats"
+                      title="Player Stats"
+                      data={currentSeason}
+                    />
+                  </View>
+                </ScrollView>
+              </View>
             </View>
           </View>
         </View>
-      </View>
 
-      {/* <Button title="Logout" onPress={() => signOut()} /> */}
-    </View>
+        {/* <Button title="Logout" onPress={() => signOut()} /> */}
+        <UpdateAvatarModal
+          isOpen={modalOpen}
+          onClose={setModalOpen}
+          onAvatarChange={onPhotoChange}
+          title="Profile Picture"
+          userId={userData?.id ?? ""}
+        />
+      </View>
+      <UpdateSettingsModal
+        isOpen={modalOpenSettings}
+        onClose={setModalOpenSettings}
+        title="Settings"
+        user={userData as User}
+      />
+    </>
   );
 }
 

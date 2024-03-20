@@ -26,6 +26,7 @@
     "expo-asset": "~9.0.2",
     "expo-cached-image": "^50.0.6",
     "expo-constants": "~15.4.2",
+    "expo-file-system": "~16.0.8",
     "expo-font": "^11.10.2",
     "expo-image": "^1.10.6",
     "expo-image-picker": "^14.7.1",

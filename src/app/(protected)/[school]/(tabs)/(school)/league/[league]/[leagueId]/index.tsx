@@ -29,6 +29,9 @@ import {
 } from "./imports";
 import { cn } from "@/lib/utils";
 import { useRefetchOnFocus } from "@/hooks/useRefectOnFocus";
+import { FixturesModal } from "@/components/league/league-fixtures-modal";
+import { ResultsModal } from "@/components/league/league-results-modal";
+import { TablesModal } from "@/components/league/league-tables-modal";
 
 type IndexProps = {};
 
@@ -56,6 +59,11 @@ const Index = ({}: IndexProps) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const { BACKGROUND, PRIMARY, TEXT } = useColor();
+
+  // Modals
+  const [fixtureModal, setFixtureModal] = useState(false);
+  const [tableModal, setTableModal] = useState(false);
+  const [resultModal, setResultModal] = useState(false);
 
   const {
     data: leagueData,
@@ -103,10 +111,15 @@ const Index = ({}: IndexProps) => {
   const { teams } = leagueData as League;
   const { soccerTable } = leagueData as League;
 
-  const fixture = buildCaptainFixture(
+  const fixtures = buildCaptainFixture(
     fixtureData ?? [],
     session?.user?.id ?? ""
   );
+
+  // const fixture = capData?.fixture;
+  // const closestFixture = capData?.closestFixture;
+  // const previousFixture = capData?.previousFixture;
+  // const unsortedFixtures = capData?.unsorted;
 
   const team =
     teams.find((team) => team.captainId === session?.user?.id) ??
@@ -118,7 +131,7 @@ const Index = ({}: IndexProps) => {
   // Find the standings for the current team
   const standings = soccerTable?.find((table) => table.teamId === teamId);
 
-  const sortedFixtures = sortFixturesByDate(fixture ?? []);
+  const sortedFixtures = sortFixturesByDate(fixtures ?? []);
 
   // Find the index of the fixture that is closest to the current date
   const closestFixtureIndex =
@@ -134,7 +147,7 @@ const Index = ({}: IndexProps) => {
       ? sortedFixtures[closestFixtureIndex]
       : null;
 
-  // Find the index of the previous fixture closest to the current date
+  // // Find the index of the previous fixture closest to the current date
   const previousFixtureIndex =
     closestFixtureIndex !== null ? closestFixtureIndex - 1 : null;
   const previousFixture =
@@ -158,20 +171,20 @@ const Index = ({}: IndexProps) => {
         )}
       >
         {/* Header */}
-        {fixture && fixture?.length > 0 && (
+        {fixtures && (
           <View className="bg-background-light dark:bg-background-dark py-4  gap-2 border-b border-neutral-400 dark:border-neutral-600">
             <View className="gap-4">
               <Text className="text-text-light dark:text-text-dark text-xl font-bold">
                 {team?.shortName ?? team?.name} Matches
               </Text>
-              <FixtureScroll fixtures={fixture} />
+              <FixtureScroll fixtures={fixtures} />
             </View>
           </View>
         )}
 
         <View className="bg-background-light dark:bg-background-dark items-start justify-start w-full px-1 gap-4 b">
-          <LeagueCard header="Fixture">
-            <View className="flex-row justify-between items-center">
+          <LeagueCard onPress={() => setFixtureModal(true)} header="Fixtures">
+            <View className="flex-row justify-between items-center w-full">
               <View>
                 <Text className="dark:text-text-light text-text-dark">
                   {closestFixture?.date ?? "No fixture available"}
@@ -182,8 +195,9 @@ const Index = ({}: IndexProps) => {
               </View>
             </View>
           </LeagueCard>
-          <LeagueCard header="Results">
-            <View className="flex-row justify-between items-center">
+
+          <LeagueCard header="Results" onPress={() => setResultModal(true)}>
+            <View className="flex-row justify-between items-center w-full">
               <View>
                 <Text className="dark:text-text-light text-text-dark">
                   {previousFixture?.date ?? "No results available"}
@@ -194,7 +208,8 @@ const Index = ({}: IndexProps) => {
               </View>
             </View>
           </LeagueCard>
-          <LeagueCard header="Tables">
+
+          <LeagueCard onPress={() => setTableModal(true)} header="Tables">
             {fixtureData && <ListTable data={standings ?? null} />}
           </LeagueCard>
         </View>
@@ -235,6 +250,7 @@ const Index = ({}: IndexProps) => {
         }}
         animationType="slide"
         className=" bg-background dark:bg-background-dark items-start justify-between w-full"
+        presentationStyle="formSheet"
       >
         <CreateTeam
           captainId={session?.user?.id}
@@ -242,6 +258,27 @@ const Index = ({}: IndexProps) => {
           setModalOpen={setModalOpen}
         />
       </Modal>
+      <FixturesModal
+        isOpen={fixtureModal}
+        onClose={() => setFixtureModal(false)}
+        onChange={(val: any) => console.log(val)}
+        title="Fixtures"
+        fixtures={fixtureData}
+      />
+      <ResultsModal
+        isOpen={resultModal}
+        onClose={() => setResultModal(false)}
+        onChange={(val: any) => console.log(val)}
+        title="Results"
+        results={fixtureData}
+      />
+      <TablesModal
+        isOpen={tableModal}
+        onClose={() => setTableModal(false)}
+        onChange={(val: any) => console.log(val)}
+        title="Tables"
+        league={leagueData}
+      />
     </>
   );
 };

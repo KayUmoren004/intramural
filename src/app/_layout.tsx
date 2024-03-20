@@ -6,6 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider } from "@/lib/providers/auth-provider";
+import { Image } from "expo-image";
 
 const queryClient = new QueryClient();
 

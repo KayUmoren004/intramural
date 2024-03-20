@@ -81,6 +81,32 @@ export const buildCaptainFixture = (data: Fixture[], captainId: string) => {
     });
 
   return fixtures;
+
+  // const sorted = sortFixturesByDate2(fixtures);
+
+  // if (!sorted) return null;
+
+  // // Find closet index to current date
+  // const closestIndex = sorted.findIndex((fixture) => {
+  //   const fixtureDate = new Date(fixture.isoDate ?? fixture.date);
+  //   const currentDate = new Date();
+
+  //   return fixtureDate.getTime() > currentDate.getTime();
+  // });
+
+  // // Previous fixture
+  // const previousFixtureIndex = closestIndex - 1;
+
+  // const closestFixture = closestIndex < 0 ? sorted.pop() : sorted[closestIndex];
+  // const previousFixture =
+  //   previousFixtureIndex < 0 ? sorted[0] : sorted[previousFixtureIndex];
+
+  // return {
+  //   fixture: sorted,
+  //   unsorted: fixtures,
+  //   closestFixture,
+  //   previousFixture,
+  // };
 };
 
 // Build Fixtures based on team Id
@@ -97,4 +123,50 @@ export const buildTeamFixture = (data: Fixture[], teamId: string) => {
     });
 
   return fixtures;
+};
+
+export type FixtureSectionList = {
+  title: string;
+  data: FixtureType[];
+};
+
+// Sort fixtures by date
+const sortFixturesByDate2 = (fixtures: FixtureType[]) => {
+  // if (!fixtures || fixtures.length === 0) return null;
+
+  // console.log("Sorted Fixtures", fixtures);
+
+  // return fixtures.sort(
+  //   (a, b) =>
+  //     new Date(a.isoDate ?? a.date).getTime() -
+  //     new Date(b.isoDate ?? b.date).getTime()
+  // );
+
+  if (!Array.isArray(fixtures) || fixtures.length === 0) return [];
+
+  return fixtures.sort((a, b) => {
+    // Prefer isoDate, but fallback to date if isoDate is not available
+    const dateA = new Date(a.isoDate ?? a.date).getTime();
+    const dateB = new Date(b.isoDate ?? b.date).getTime();
+
+    return dateA - dateB;
+  });
+};
+
+// Given an array of sorted fixtures, sort them into an object with keys as the date
+export const sortFixturesByDate = (fixtures: FixtureType[]) => {
+  const sortedFixtures: FixtureSectionList[] = [];
+
+  fixtures.forEach((fixture) => {
+    const date = fixture.date;
+    const index = sortedFixtures.findIndex((section) => section.title === date);
+
+    if (index === -1) {
+      sortedFixtures.push({ title: date, data: [fixture] });
+    } else {
+      sortedFixtures[index].data.push(fixture);
+    }
+  });
+
+  return sortedFixtures;
 };

@@ -1,20 +1,26 @@
 import React, { createContext, useContext, useEffect } from "react";
 import { useStorageState } from "../../hooks/useStorageState";
 import { useLogin } from "../../hooks/authentication/useAuthentication";
-import { Alert } from "react-native";
+import { Alert, View, Text } from "react-native";
 import { router, useRouter } from "expo-router";
 import { JWT, Session } from "../../hooks/authentication/authentication";
 import { BACKEND_URL } from "../../config/constants";
 import * as SecureStore from "expo-secure-store";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetUser } from "@/hooks/user/useUser";
+import Loading from "@/components/ui/Loading";
+import { Image } from "expo-image";
 
 export const AuthContext = createContext<{
   signIn: (email: string, password: string) => void;
   signOut: () => void;
+  invalidate: () => void;
   session?: Session | null;
   isLoading: boolean;
 }>({
   signIn: () => null,
   signOut: () => null,
+  invalidate: () => null,
   session: null,
   isLoading: false,
 });
@@ -59,6 +65,25 @@ async function refreshToken(
 export function SessionProvider(props: React.PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const s = session ? JSON.parse(session) : null;
+  const userId = s?.user?.id;
+
+  const {
+    data: user,
+    isLoading: userLoading,
+    isError,
+    error,
+  } = useGetUser(userId ?? "");
+
+  // Return to login
+  const Invalidate = async () => {
+    setSession(null);
+    await SecureStore.deleteItemAsync("session");
+    await SecureStore.deleteItemAsync("school");
+    router.replace("/login");
+  };
 
   const appSignIn = useLogin({
     onError: (error) => {
@@ -77,6 +102,32 @@ export function SessionProvider(props: React.PropsWithChildren) {
       router.replace(`/(protected)/${slug}/dashboard`);
     },
   });
+
+  // Prefetch images
+  const prefetch = async () => {
+    return await Image.prefetch(
+      s?.user?.avatarUrl ?? "https://via.placeholder.com/150",
+      "memory-disk"
+    );
+  };
+
+  // Get the most update user object
+  useEffect(() => {
+    queryClient.invalidateQueries();
+
+    // if there is a user, update the session
+    if (user) {
+      const newSession: Session = {
+        ...s,
+        user,
+      };
+
+      setSession(JSON.stringify(newSession));
+    }
+
+    // Prefetch images
+    prefetch();
+  }, [session, setSession]);
 
   useEffect(() => {
     // setSession(null);
@@ -127,20 +178,39 @@ export function SessionProvider(props: React.PropsWithChildren) {
     };
   }, [session, setSession]);
 
+  if (userLoading) {
+    return (
+      <View className="bg-background-light dark:bg-background-dark flex-1 items-center justify-center">
+        <Loading />
+      </View>
+    );
+  }
+
+  if (isError) {
+    console.log("Error @Auth-Provider: ", error);
+    return (
+      <View className="bg-background-light dark:bg-background-dark flex-1 items-center justify-center">
+        <Text className="text-text-light dark:text-text-dark">
+          {error.message}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <AuthContext.Provider
       value={{
         signIn: (email: string, password: string) => {
-          // Perform sign-in logic here
           appSignIn.mutate({ email, password });
         },
         signOut: async () => {
-          // setSession(null);
           await SecureStore.deleteItemAsync("session");
           await SecureStore.deleteItemAsync("school");
+          setSession(null);
 
           router.replace("/login");
         },
+        invalidate: Invalidate,
         session: session ? JSON.parse(session) : null,
         isLoading,
       }}

@@ -14,6 +14,7 @@ type TableProps = {
 
 const Table = ({ table, scroll }: TableProps) => {
   const { headers, teams } = table;
+  console.log("Table Teams", teams);
   return (
     <DataTable className="">
       <View className="">
@@ -35,7 +36,14 @@ const Table = ({ table, scroll }: TableProps) => {
             // Remove form from table
             if (name === "Form") return null;
             return main ? null : (
-              <DataTable.Title key={idx}>
+              <DataTable.Title
+                style={{
+                  alignItems: "center",
+                  alignContent: "center",
+                  justifyContent: "center",
+                }}
+                key={idx}
+              >
                 <Text className="text-white font-bold dark:text-text-dark">
                   {shorthand}
                 </Text>
@@ -66,12 +74,22 @@ const RenderData = ({ team }: { team: sportteam }) => {
       </DataTable.Cell>
       <View className="w-1/2">
         <DataTable.Cell>
-          <Text className="text-white dark:text-text-dark">{team.Team}</Text>
+          <Text className="text-white dark:text-text-dark">
+            {team.Team.name}
+          </Text>
         </DataTable.Cell>
       </View>
       {Object.values(team.stats).map((stat: any, idx: number) => {
         return (
-          <DataTable.Cell key={idx}>
+          <DataTable.Cell
+            style={{
+              // backgroundColor: "red",
+              alignItems: "center",
+              alignContent: "center",
+              justifyContent: "center",
+            }}
+            key={idx}
+          >
             <Text className="text-white dark:text-text-dark">{stat}</Text>
           </DataTable.Cell>
         );

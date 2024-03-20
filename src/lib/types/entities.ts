@@ -365,6 +365,8 @@ export type User = {
   schoolId: string;
   schoolDomain: string;
   school: School;
+  avatarUrl: string;
+  blurhash: string;
   [key: string]: any;
 };
 

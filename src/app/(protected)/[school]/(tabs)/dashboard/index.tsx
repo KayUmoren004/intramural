@@ -1,4 +1,5 @@
 import { useSession } from "@/lib/providers/auth-provider";
+import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Text, View, Button } from "react-native";
 

@@ -1,16 +1,13 @@
 import Text from "@/components/ui/Text";
-import { Dimensions, View, ScrollView } from "react-native";
+import { Dimensions, View, ScrollView, StyleSheet } from "react-native";
 import {
-  DateComponent,
   MiniDateComponent,
   MiniTeam,
   MiniTimeComponent,
-  Team,
-  TimeComponent,
 } from "./fixture-atoms";
-import { generateBoxShadowStyle } from "@/scripts/box-shadow";
 import { AwayTeamType, HomeTeamType } from "@/lib/types/entities";
 import { useEffect, useRef, useState } from "react";
+import { Image } from "expo-image";
 
 type TeamType = {
   logo?: string;
@@ -33,6 +30,18 @@ export type FixtureType = {
   };
   isoDate?: any;
 };
+const imageMap: { [key: string]: string } = {
+  home: require("./home.png"),
+  away: require("./away.png"),
+};
+
+const styles = StyleSheet.create({
+  img: {
+    height: 30,
+    width: 30,
+    borderRadius: 25,
+  },
+});
 
 export const Fixture = ({
   homeTeam,
@@ -42,23 +51,28 @@ export const Fixture = ({
   result,
   time,
 }: FixtureType) => {
-  const shadow = generateBoxShadowStyle(-2, 4, "#171717", 0.2, 3, 4, "#171717");
   return (
-    <View
-      style={
-        {
-          // ...shadow,
-        }
-      }
-      className="flex flex-col items-center justify-center w-full h-20 rounded-xl gap-2 border border-slate-600 py-1 px-0.5 dark:bg-slate-600"
-    >
-      <View className="flex flex-row items-center justify-between w-full">
-        <Team {...homeTeam} />
-        <TimeComponent time={time} />
-        <Team {...awayTeam} />
+    <View className="flex flex-row items-center justify-center p-2 gap-2">
+      <View className="w-1/3">
+        <Text className="text-right font-bold">{homeTeam.name}</Text>
       </View>
-      <View>
-        <DateComponent date={date} />
+      <Image
+        source={imageMap["home"]}
+        contentFit="fill"
+        contentPosition="center"
+        style={styles.img}
+      />
+      <View className="items-center border border-neutral-200 rounded-xl p-2">
+        <Text className="text-center text-md font-bold">{time}</Text>
+      </View>
+      <Image
+        source={imageMap["away"]}
+        contentFit="fill"
+        contentPosition="center"
+        style={styles.img}
+      />
+      <View className="w-1/3">
+        <Text className="text-left font-bold">{awayTeam.name}</Text>
       </View>
     </View>
   );
@@ -142,6 +156,7 @@ const sortFixturesByDate = (fixtures: FixtureType[]) => {
 };
 
 export const FixtureScroll = ({ fixtures }: { fixtures: FixtureType[] }) => {
+  console.log(fixtures, "fixtures");
   const sortedFixtures = sortFixturesByDate(fixtures);
   const scrollViewRef = useRef<any>(null);
   const [initialOffset, setInitialOffset] = useState(0);
