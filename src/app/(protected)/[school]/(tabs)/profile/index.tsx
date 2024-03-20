@@ -95,7 +95,7 @@ export default function App() {
                 padding: 10,
               }}
             >
-              <TouchableOpacity onPress={() => setModalOpen(true)}>
+              <TouchableOpacity onPress={() => setModalOpenSettings(true)}>
                 <Feather name="settings" size={24} color="#fff" />
               </TouchableOpacity>
             </View>
