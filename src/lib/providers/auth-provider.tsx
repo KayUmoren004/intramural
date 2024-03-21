@@ -207,8 +207,8 @@ export function SessionProvider(props: React.PropsWithChildren) {
           await SecureStore.deleteItemAsync("session");
           await SecureStore.deleteItemAsync("school");
           setSession(null);
-
-          router.replace("/login");
+          await Invalidate();
+          // router.replace("/login");
         },
         invalidate: Invalidate,
         session: session ? JSON.parse(session) : null,

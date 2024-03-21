@@ -8,3 +8,11 @@ export const useGetLeagueFixtures = (leagueId: string) => {
     queryFn: () => fixture.getLeagueFixtures(leagueId),
   });
 };
+
+// Get All Fixtures for a Team
+export const useGetTeamFixtures = (teamId: string, leagueId: string) => {
+  return useQuery({
+    queryKey: ["teamFixtures", teamId, leagueId],
+    queryFn: () => fixture.getTeamFixtures(teamId, leagueId),
+  });
+};

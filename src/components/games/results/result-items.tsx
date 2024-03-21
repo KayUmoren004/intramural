@@ -33,12 +33,10 @@ export const Result = ({
   time,
   isoDate,
 }: FixtureType) => {
-  // Do not render if the iso date is in the future or if the date is not today
-  if (
-    new Date(isoDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)
-  ) {
-    return null;
-  }
+  // Do not render if the fixture has not happened
+  if (new Date(isoDate) > new Date()) return null;
+
+  if (!result) return null;
 
   const { homeScore, awayScore } = result as ResultsType;
   return (

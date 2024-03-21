@@ -29,7 +29,7 @@ export const useGetSchoolTeams = (schoolId: string) => {
 export const useGetTeam = (leagueId: string, teamId: string) => {
   return useQuery({
     queryKey: ["team", leagueId, teamId],
-    queryFn: () => team.getTeam(leagueId, teamId),
+    queryFn: () => team.getTeam(leagueId, teamId).then((res) => res?.data),
   });
 };
 

@@ -14,4 +14,6 @@ export const fixture = {
     requests.get<Fixture>(`/fixture/${fixtureId}`),
   getLeagueFixtures: (leagueId: string): Promise<Fixture[]> =>
     requests.get<Fixture[]>(`/fixture/league/${leagueId}`),
+  getTeamFixtures: (teamId: string, leagueId: string): Promise<Fixture[]> =>
+    requests.get<Fixture[]>(`/fixture/league/${leagueId}/team/${teamId}`),
 };

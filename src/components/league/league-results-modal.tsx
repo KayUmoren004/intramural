@@ -56,14 +56,12 @@ export const ResultsModal = ({
           )}
           renderSectionHeader={({ section: { title, data } }) => {
             const dataData = data[0]?.isoDate;
-            const hidden =
-              new Date(dataData).setHours(0, 0, 0, 0) <
-              new Date().setHours(0, 0, 0, 0);
+            const hidden = new Date(dataData) > new Date();
             return (
               <Text
                 className={cn(
                   "text-2xl font-bold text-text dark:text-text-dark p-4 w-full bg-background-light dark:bg-background-dark",
-                  hidden ? "" : "hidden"
+                  hidden ? "hidden" : ""
                 )}
               >
                 {title}

@@ -261,6 +261,7 @@ export type LeagueSettings = {
 };
 
 export type Team = {
+  data?: any;
   id: string;
   leagueId: string; // Reference to associated league
   name: string;

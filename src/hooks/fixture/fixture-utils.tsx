@@ -36,7 +36,13 @@ export const buildFixture = (data: Fixture) => {
   const date = data.date;
   const time = data.date;
   const id = data.id;
-  const results = data.results ?? null;
+  let results;
+
+  if (!data.results || data.results === null) {
+    results = null;
+  } else {
+    results = data.results;
+  }
 
   const val: FixtureType = {
     homeTeam,
@@ -45,12 +51,7 @@ export const buildFixture = (data: Fixture) => {
     time: format(new Date(time), "hh:mm a"),
     id,
     isoDate: date,
-    result:
-      {
-        homeScore: results?.homeScore ?? 0,
-        awayScore: results?.awayScore ?? 0,
-        winner: results?.winner ?? "Draw",
-      } ?? null,
+    result: results,
   };
 
   return val;

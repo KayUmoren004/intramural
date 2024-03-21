@@ -27,7 +27,7 @@ export type FixtureType = {
     homeScore: number;
     awayScore: number;
     winner: "Home" | "Away" | "Draw";
-  };
+  } | null;
   isoDate?: any;
 };
 const imageMap: { [key: string]: string } = {
@@ -156,17 +156,23 @@ const sortFixturesByDate = (fixtures: FixtureType[]) => {
 };
 
 export const FixtureScroll = ({ fixtures }: { fixtures: FixtureType[] }) => {
-  console.log(fixtures, "fixtures");
   const sortedFixtures = sortFixturesByDate(fixtures);
   const scrollViewRef = useRef<any>(null);
   const [initialOffset, setInitialOffset] = useState(0);
 
   // Find the index of the fixture that is closest to the current date
-  const closestFixtureIndex = sortedFixtures.findIndex((fixture) => {
-    const fixtureDate = new Date(fixture.isoDate ?? fixture.date);
-    const today = new Date();
-    return fixtureDate.setHours(0, 0, 0, 0) >= today.setHours(0, 0, 0, 0);
-  });
+  const closestFixtureIndex =
+    sortedFixtures.findIndex((fixture) => {
+      const fixtureDate = new Date(fixture.isoDate ?? fixture.date);
+      const today = new Date();
+      return fixtureDate.setHours(0, 0, 0, 0) >= today.setHours(0, 0, 0, 0);
+    }) < 0
+      ? sortedFixtures.length - 1
+      : sortedFixtures.findIndex((fixture) => {
+          const fixtureDate = new Date(fixture.isoDate ?? fixture.date);
+          const today = new Date();
+          return fixtureDate.setHours(0, 0, 0, 0) >= today.setHours(0, 0, 0, 0);
+        });
 
   // Calculate the initial scroll offset
   useEffect(() => {

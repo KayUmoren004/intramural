@@ -91,10 +91,7 @@ const Index = ({}: IndexProps) => {
               data={leagues}
               keyExtractor={(item) => item.id}
               estimatedItemSize={50}
-              renderItem={({ item, index }) => (
-                <LeaguesList index={index} league={item} />
-              )}
-              // ItemSeparatorComponent={() => <Divider color={colors.TEXT} />}
+              renderItem={({ item, index }) => <LeaguesList league={item} />}
             />
           </View>
         </View>

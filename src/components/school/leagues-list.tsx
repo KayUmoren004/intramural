@@ -5,17 +5,15 @@ import { Text, View, TouchableOpacity } from "react-native";
 
 type LeaguesListProps = {
   league: League;
-  index: number;
 };
 
-const LeaguesList = ({ league, index }: LeaguesListProps) => {
+const LeaguesList = ({ league }: LeaguesListProps) => {
   const { school } = useGlobalSearchParams();
   const { push } = useRouter();
 
   if (!school) return null;
 
   const name = league.name;
-  console.log("Index: ", index);
   return (
     <TouchableOpacity
       onPress={() =>
@@ -30,9 +28,6 @@ const LeaguesList = ({ league, index }: LeaguesListProps) => {
         "flex flex-row flex-1 items-start justify bg-background-light dark:bg-background-dark w-full py-4 px-2 rounded mb-1.5 border-b border-red-500"
       )}
     >
-      <Text className="text-text-light dark:text-text-dark mr-4">
-        {index + 1}
-      </Text>
       <Text className="text-text-light dark:text-text-dark font-bold">
         {name}
       </Text>

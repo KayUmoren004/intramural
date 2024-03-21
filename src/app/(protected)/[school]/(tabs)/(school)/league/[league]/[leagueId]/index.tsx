@@ -144,15 +144,20 @@ const Index = ({}: IndexProps) => {
 
   const closestFixture =
     sortedFixtures && closestFixtureIndex !== null
-      ? sortedFixtures[closestFixtureIndex]
+      ? closestFixtureIndex < 0
+        ? sortedFixtures[sortedFixtures.length - 1]
+        : sortedFixtures[closestFixtureIndex]
       : null;
 
   // // Find the index of the previous fixture closest to the current date
   const previousFixtureIndex =
     closestFixtureIndex !== null ? closestFixtureIndex - 1 : null;
+
   const previousFixture =
     sortedFixtures && previousFixtureIndex !== null
-      ? sortedFixtures[previousFixtureIndex]
+      ? previousFixtureIndex < 0
+        ? sortedFixtures[0]
+        : sortedFixtures[previousFixtureIndex]
       : null;
 
   const hasTeam = team?.captainId === session?.user?.id;
@@ -183,7 +188,11 @@ const Index = ({}: IndexProps) => {
         )}
 
         <View className="bg-background-light dark:bg-background-dark items-start justify-start w-full px-1 gap-4 b">
-          <LeagueCard onPress={() => setFixtureModal(true)} header="Fixtures">
+          <LeagueCard
+            disabled={!closestFixture?.date}
+            onPress={() => setFixtureModal(true)}
+            header="Fixtures"
+          >
             <View className="flex-row justify-between items-center w-full">
               <View>
                 <Text className="dark:text-text-light text-text-dark">
@@ -196,20 +205,33 @@ const Index = ({}: IndexProps) => {
             </View>
           </LeagueCard>
 
-          <LeagueCard header="Results" onPress={() => setResultModal(true)}>
+          <LeagueCard
+            header="Results"
+            disabled={!previousFixture?.result}
+            onPress={() => setResultModal(true)}
+          >
             <View className="flex-row justify-between items-center w-full">
               <View>
                 <Text className="dark:text-text-light text-text-dark">
-                  {previousFixture?.date ?? "No results available"}
+                  {(previousFixture &&
+                    previousFixture.result &&
+                    previousFixture?.date) ??
+                    "No results available"}
                 </Text>
               </View>
               <View>
-                {previousFixture && <ListResult {...previousFixture} />}
+                {previousFixture && previousFixture.result && (
+                  <ListResult {...previousFixture} />
+                )}
               </View>
             </View>
           </LeagueCard>
 
-          <LeagueCard onPress={() => setTableModal(true)} header="Tables">
+          <LeagueCard
+            disabled={!standings}
+            onPress={() => setTableModal(true)}
+            header="Tables"
+          >
             {fixtureData && <ListTable data={standings ?? null} />}
           </LeagueCard>
         </View>
@@ -287,13 +309,15 @@ const LeagueCard = ({
   header,
   children,
   onPress,
+  disabled,
 }: {
   header: string;
   children?: React.ReactNode;
   onPress?: () => void;
+  disabled?: boolean;
 }) => {
   return (
-    <Pressable onPress={onPress}>
+    <Pressable disabled={disabled} onPress={onPress}>
       <View className="w-full h-24 border border-neutral-300 rounded flex flex-col items-start justify-between bg-black dark:bg-white">
         <View className="w-full flex-row items-center justify-between border-b border-neutral-300 p-2">
           <Text className="dark:text-text-light text-text-dark text-2xl">
