@@ -23,14 +23,6 @@ const Layout = () => {
       <Tabs.Screen
         options={{
           tabBarIcon: ({ focused, color, size }) => {
-            return <Feather name="home" size={size} color={color} />;
-          },
-        }}
-        name="dashboard/index"
-      />
-      <Tabs.Screen
-        options={{
-          tabBarIcon: ({ focused, color, size }) => {
             return <Feather name="map-pin" size={size} color={color} />;
           },
         }}
@@ -58,6 +50,15 @@ const Layout = () => {
           href: null,
         }}
         name="(school)"
+      />
+      <Tabs.Screen
+        options={{
+          // tabBarIcon: ({ focused, color, size }) => {
+          //   return <Feather name="home" size={size} color={color} />;
+          // },
+          href: null,
+        }}
+        name="dashboard/index"
       />
     </Tabs>
   );
