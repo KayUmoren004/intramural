@@ -92,7 +92,7 @@ const Index = ({}: IndexProps) => {
     );
 
   if (isError) {
-    console.log("Error @Login: ", error);
+    console.log("Error @League - Error: ", error);
     return (
       <View className="bg-background-light dark:bg-background-dark flex-1 items-center justify-center">
         <Text className="text-red-500">{error.message}</Text>
@@ -100,7 +100,7 @@ const Index = ({}: IndexProps) => {
     );
   }
   if (fixtureIsError) {
-    console.log("Error @Login: ", error);
+    console.log("Error @@League - Fixture Error: ", error);
     return (
       <View className="bg-background-light dark:bg-background-dark flex-1 items-center justify-center">
         <Text className="text-red-500">{fixtureError.message}</Text>

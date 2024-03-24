@@ -53,9 +53,9 @@ const Layout = () => {
       />
       <Tabs.Screen
         options={{
-          // tabBarIcon: ({ focused, color, size }) => {
-          //   return <Feather name="home" size={size} color={color} />;
-          // },
+          tabBarIcon: ({ focused, color, size }) => {
+            return <Feather name="home" size={size} color={color} />;
+          },
           href: null,
         }}
         name="dashboard/index"

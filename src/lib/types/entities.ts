@@ -291,15 +291,22 @@ export type Player = {
 
 export type Game = {
   id: string;
-  homeTeamId: string; // ID reference to the home team
-  awayTeamId: string; // ID reference to the away team
-  date: Date; // Scheduled date for the game
-  location: string; // Venue of the game
-  result?: {
-    homeScore: number;
-    awayScore: number;
-    winner: "Home" | "Away" | "Draw";
-  };
+  homeId: string;
+  awayId: string;
+  teams: Team[];
+  settings: GameSettings[];
+  leagueId: string;
+  league: League;
+  fixture?: Fixture;
+};
+
+export type GameSettings = {
+  id: number;
+  gameId: string;
+  game: Game;
+  name: string;
+  value: string;
+  required: boolean;
 };
 
 type DynamicStats = {
@@ -413,4 +420,5 @@ export type Fixture = {
   homeFixtureId: string;
   awayFixtureId: string;
   date: Date;
+  gameId: string;
 };

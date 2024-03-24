@@ -111,24 +111,6 @@ export function SessionProvider(props: React.PropsWithChildren) {
     );
   };
 
-  // Get the most update user object
-  useEffect(() => {
-    queryClient.invalidateQueries();
-
-    // if there is a user, update the session
-    if (user) {
-      const newSession: Session = {
-        ...s,
-        user,
-      };
-
-      setSession(JSON.stringify(newSession));
-    }
-
-    // Prefetch images
-    prefetch();
-  }, [session, setSession]);
-
   useEffect(() => {
     // setSession(null);
     let intervalId: NodeJS.Timeout;
@@ -176,6 +158,39 @@ export function SessionProvider(props: React.PropsWithChildren) {
     return () => {
       if (intervalId) clearTimeout(intervalId);
     };
+  }, [session, setSession]);
+
+  // Get the most update user object
+  useEffect(() => {
+    queryClient.invalidateQueries();
+
+    // if there is a user, update the session
+    if (user) {
+      const actualUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        lastLogin: user.lastLogin,
+        schoolId: user.schoolId,
+        signUpDate: user.signUpDate,
+        blurhash: user.blurhash,
+        avatarUrl: user.avatarUrl,
+        school: user.school,
+      };
+
+      const newSession: Session = {
+        ...s,
+        user: actualUser,
+      };
+
+      setSession(JSON.stringify(newSession));
+    }
+
+    // Prefetch images
+    prefetch();
   }, [session, setSession]);
 
   if (userLoading) {

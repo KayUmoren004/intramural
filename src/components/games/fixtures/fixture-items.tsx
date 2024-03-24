@@ -1,5 +1,11 @@
 import Text from "@/components/ui/Text";
-import { Dimensions, View, ScrollView, StyleSheet } from "react-native";
+import {
+  Dimensions,
+  View,
+  ScrollView,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import {
   MiniDateComponent,
   MiniTeam,
@@ -8,6 +14,7 @@ import {
 import { AwayTeamType, HomeTeamType } from "@/lib/types/entities";
 import { useEffect, useRef, useState } from "react";
 import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 type TeamType = {
   logo?: string;
@@ -29,6 +36,7 @@ export type FixtureType = {
     winner: "Home" | "Away" | "Draw";
   } | null;
   isoDate?: any;
+  gameId: string;
 };
 const imageMap: { [key: string]: string } = {
   home: require("./home.png"),
@@ -85,11 +93,25 @@ export const MiniFixture = ({
   fixtureId,
   result,
   time,
+  gameId,
 }: FixtureType) => {
+  const { push, replace } = useRouter();
+  const { school } = useLocalSearchParams<{ school: string }>();
+
   if (!homeTeam || !awayTeam) return null;
 
   return (
-    <View className="flex flex-col items-center justify-center w-[230px] gap-2 h-20 rounded-xl border border-white py-1 px-0.5 dark:bg-white">
+    <Pressable
+      onPress={() =>
+        push({
+          pathname: `/${school}/(tabs)/(school)/game/${gameId}`,
+          params: {
+            fixtureId,
+          },
+        })
+      }
+      className="flex flex-col items-center justify-center w-[230px] gap-2 h-20 rounded-xl border border-white py-1 px-0.5 dark:bg-white"
+    >
       <View>
         <MiniDateComponent date={date} />
       </View>
@@ -108,7 +130,7 @@ export const MiniFixture = ({
           logo={awayTeam.logo}
         />
       </View>
-    </View>
+    </Pressable>
   );
 };
 

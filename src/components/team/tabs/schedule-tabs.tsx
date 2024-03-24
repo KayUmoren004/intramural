@@ -26,7 +26,6 @@ export const ScheduleTab = ({ teamId, leagueId }: ScheduleTabProps) => {
     error,
     refetch,
   } = useGetTeamFixtures(teamId, leagueId);
-  console.log("Fixture Modal: ", fixtures);
 
   useRefetchOnFocus(refetch, true);
 
@@ -57,8 +56,6 @@ export const ScheduleTab = ({ teamId, leagueId }: ScheduleTabProps) => {
 
     return lastFixture.id === fixture.id;
   };
-
-  console.log("Fixtures: ", fixtureBins);
 
   return (
     // <View className="bg-background-light dark:bg-background-dark flex-1 items-start justify-start p-2">

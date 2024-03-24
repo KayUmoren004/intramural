@@ -36,6 +36,7 @@ export const buildFixture = (data: Fixture) => {
   const date = data.date;
   const time = data.date;
   const id = data.id;
+  const gameId = data.gameId;
   let results;
 
   if (!data.results || data.results === null) {
@@ -52,6 +53,7 @@ export const buildFixture = (data: Fixture) => {
     id,
     isoDate: date,
     result: results,
+    gameId,
   };
 
   return val;
