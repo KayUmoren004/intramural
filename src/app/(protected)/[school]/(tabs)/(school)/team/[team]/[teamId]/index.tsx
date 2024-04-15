@@ -3,11 +3,6 @@ import { useGetTeam } from "@/hooks/team/useTeam";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Button, Pressable, Text, View, StyleSheet } from "react-native";
 import { MotiView } from "moti";
-import {
-  Team,
-  useColor,
-  useState,
-} from "../../../league/[league]/[leagueId]/imports";
 import { cn } from "@/lib/utils";
 import Animated, {
   useSharedValue,
@@ -19,6 +14,8 @@ import { StatsTab } from "@/components/team/tabs/stats-tabs";
 import { RosterTab } from "@/components/team/tabs/roster";
 import { useRefetchOnFocus } from "@/hooks/useRefectOnFocus";
 import { Tab } from "@/components/ui/tab";
+import { useState } from "react";
+import { Team } from "@/lib/types/entities";
 
 type IndexProps = {};
 
@@ -71,7 +68,7 @@ const Index = ({}: IndexProps) => {
     );
 
   if (isError) {
-    console.log("Error @Login: ", error);
+    console.log("Error @Team: ", error);
     return (
       <View className="bg-background-light dark:bg-background-dark flex-1 items-center justify-center">
         <Text className="text-red-500">{error.message}</Text>

@@ -15,6 +15,7 @@ import { AwayTeamType, HomeTeamType } from "@/lib/types/entities";
 import { useEffect, useRef, useState } from "react";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { cn } from "@/lib/utils";
 
 type TeamType = {
   logo?: string;
@@ -94,7 +95,10 @@ export const MiniFixture = ({
   result,
   time,
   gameId,
-}: FixtureType) => {
+  full,
+}: FixtureType & {
+  full?: boolean;
+}) => {
   const { push, replace } = useRouter();
   const { school } = useLocalSearchParams<{ school: string }>();
 
@@ -110,11 +114,16 @@ export const MiniFixture = ({
           },
         })
       }
-      className="flex flex-col items-center justify-center w-[230px] gap-2 h-20 rounded-xl border border-white py-1 px-0.5 dark:bg-white"
+      className={cn(
+        "flex flex-col items-center justify-center gap-2 h-20 rounded-xl border border-white py-1 px-0.5 dark:bg-white",
+        full ? "w-full" : "w-[230px]"
+      )}
     >
-      <View>
-        <MiniDateComponent date={date} />
-      </View>
+      {!full && (
+        <View>
+          <MiniDateComponent date={date} />
+        </View>
+      )}
       <View className="flex flex-row items-center justify-around w-full">
         <MiniTeam
           name={homeTeam?.shorthand ?? homeTeam.name.slice(0, 3).toUpperCase()}
@@ -130,6 +139,11 @@ export const MiniFixture = ({
           logo={awayTeam.logo}
         />
       </View>
+      {full && (
+        <View>
+          <MiniDateComponent date={date} />
+        </View>
+      )}
     </Pressable>
   );
 };

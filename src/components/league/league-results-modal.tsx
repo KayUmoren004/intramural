@@ -68,7 +68,7 @@ export const ResultsModal = ({
               </Text>
             );
           }}
-          contentContainerClassName="flex flex-1 w-full gap-2 bg-background-light dark:bg-background-dark"
+          contentContainerClassName="w-full gap-2 bg-background-light dark:bg-background-dark"
         />
       </View>
     </Modal>

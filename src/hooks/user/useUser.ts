@@ -24,16 +24,10 @@ export const useUploadImage = ({
 };
 
 // Get User
-export const useGetUser = (id: string) => {
-  if (!id || id === "") {
-    return useQuery({
-      queryKey: ["user", id],
-      queryFn: () => user.getUser(id),
-      enabled: false,
-    });
-  }
+export const useGetUser = (id: string, tokenRefreshed: boolean) => {
   return useQuery({
     queryKey: ["user", id],
     queryFn: () => user.getUser(id),
+    enabled: tokenRefreshed && !!id,
   });
 };

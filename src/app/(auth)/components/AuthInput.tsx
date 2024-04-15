@@ -46,6 +46,16 @@ const AuthInput = ({
       name: "lock",
       color: colors.PRIMARY,
     },
+    name: {
+      type: "feather",
+      name: "user",
+      color: colors.PRIMARY,
+    },
+    confirmPassword: {
+      type: "feather",
+      name: "lock",
+      color: colors.PRIMARY,
+    },
   };
 
   const rightIconMap: {
@@ -66,7 +76,6 @@ const AuthInput = ({
 
   return (
     <Input
-      {...config}
       ref={field.ref}
       value={field.value}
       onChangeText={field.onChange}
@@ -82,6 +91,7 @@ const AuthInput = ({
       autoCapitalize="none"
       leftIcon={leftIconMap[name]}
       rightIcon={rightIconMap[name]}
+      {...config}
     />
   );
 };

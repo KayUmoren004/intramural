@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type AuthButtonProps = {
@@ -5,6 +6,7 @@ type AuthButtonProps = {
   label: string;
   destructive?: boolean;
   disabled?: boolean;
+  className?: string;
 };
 
 const colorMap: { [key: string]: string } = {
@@ -18,6 +20,7 @@ export const AuthButton = ({
   label,
   destructive,
   disabled,
+  className,
 }: AuthButtonProps) => {
   const backgroundColor = disabled
     ? colorMap["disabled"]
@@ -28,7 +31,10 @@ export const AuthButton = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="w-full h-14 items-center justify-center rounded-md"
+      className={cn(
+        "w-full h-14 items-center justify-center rounded-md",
+        className
+      )}
       disabled={disabled}
     >
       <View

@@ -5,7 +5,7 @@ export type Register = {
   name: string;
   email: string;
   password: string;
-  profilePhoto?: string;
+  profilePhoto?: any;
   role?: string;
   schoolDomain: string;
 };

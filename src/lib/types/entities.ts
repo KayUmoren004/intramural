@@ -275,6 +275,7 @@ export type Team = {
   players: Player[]; // List of players associated with the team
   sport: Sport;
   shortName?: string;
+  attendance: GameAttendance[];
 };
 
 export type Player = {
@@ -287,6 +288,7 @@ export type Player = {
   jerseyNumber: number;
   // stats: any; // Player stats
   user: User;
+  attendance: GameAttendance[];
 };
 
 export type Game = {
@@ -298,6 +300,18 @@ export type Game = {
   leagueId: string;
   league: League;
   fixture?: Fixture;
+  roster?: Roster;
+  attendance?: GameAttendance[];
+};
+
+export type GameAttendance = {
+  id: string;
+  gameId: string;
+  game: Game;
+  playerId: string;
+  player: Player;
+  attended: boolean;
+  teamId: string;
 };
 
 export type GameSettings = {
@@ -359,7 +373,7 @@ export type SeasonGameStats = {
 };
 
 export type User = {
-  uid: string;
+  id: string;
   email: string;
   name: string;
   role: "ADMIN" | "CLIENT";
@@ -421,4 +435,10 @@ export type Fixture = {
   awayFixtureId: string;
   date: Date;
   gameId: string;
+};
+
+// Roster
+export type Roster = {
+  home: Player[];
+  away: Player[];
 };

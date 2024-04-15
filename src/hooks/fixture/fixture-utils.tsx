@@ -156,7 +156,6 @@ const sortFixturesByDate2 = (fixtures: FixtureType[]) => {
   });
 };
 
-// Given an array of sorted fixtures, sort them into an object with keys as the date
 export const sortFixturesByDate = (fixtures: FixtureType[]) => {
   const sortedFixtures: FixtureSectionList[] = [];
 
@@ -168,6 +167,11 @@ export const sortFixturesByDate = (fixtures: FixtureType[]) => {
       sortedFixtures.push({ title: date, data: [fixture] });
     } else {
       sortedFixtures[index].data.push(fixture);
+      // Sort the fixtures within this date bin by ascending time using the isoDate property
+      sortedFixtures[index].data.sort((a, b) => {
+        // Compare isoDate properties
+        return new Date(a.isoDate).getTime() - new Date(b.isoDate).getTime();
+      });
     }
   });
 

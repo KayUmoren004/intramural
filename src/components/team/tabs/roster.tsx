@@ -2,6 +2,7 @@ import { Player } from "@/lib/types/entities";
 import { Text, View, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { FlashList } from "@shopify/flash-list";
+import { cn } from "@/lib/utils";
 
 export const RosterTab = ({
   roster,
@@ -10,8 +11,6 @@ export const RosterTab = ({
   roster: Player[] | undefined;
   captainId: string;
 }) => {
-  console.log("Player Roster: ", roster);
-
   // Get Screen Dimensions
   const { width, height } = Dimensions.get("window");
 
@@ -31,18 +30,25 @@ export const RosterTab = ({
   );
 };
 
-const RosterItem = ({
+export const RosterItem = ({
   player,
   captainId,
+  lastItem,
 }: {
   player: Player;
   captainId: string;
+  lastItem?: boolean;
 }) => {
   const user = player.user;
   const isCaptain = user.id === captainId;
 
   return (
-    <View className="flex flex-row gap-2 items-center justify-between w-full border-b border-neutral-500 py-2">
+    <View
+      className={cn(
+        "flex flex-row gap-2 items-center justify-between w-full  py-2",
+        lastItem ? "border-b-0" : "border-b border-neutral-500"
+      )}
+    >
       <View className="gap-2 flex flex-row items-center justify-center">
         <ItemLogo player={player} />
         <View className="flex flex-col items-start justify-center gap-1 ">

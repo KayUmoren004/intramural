@@ -61,7 +61,7 @@ const Modal = ({}: ModalProps) => {
     );
 
   if (isError) {
-    console.log("Error @Login: ", error);
+    console.log("Error @School Picker Modal: ", error);
     return (
       <View className="bg-background-light dark:bg-background-dark flex-1 items-center justify-center">
         <Text className="text-text-light dark:text-text-dark">
@@ -79,8 +79,6 @@ const Modal = ({}: ModalProps) => {
         <Picker
           items={schoolList}
           onValueChange={(schoolName: string, domain: string) => {
-            console.log("School Name: ", schoolName);
-            console.log("Domain: ", domain);
             goBack(schoolName, domain);
           }}
           message="Select your School"

@@ -99,7 +99,32 @@ export const validateSignUp = (domain: string) => {
       .oneOf([Yup.ref("password")], "Passwords must match"),
   });
 
-  return { signUpSchema1, signUpSchema2 };
+  // Zod
+  const signUpSchema1Zod = z.object({
+    name: z.string().min(6).max(30),
+    email: z
+      .string()
+      .email()
+      .includes(`@${domain}`, {
+        message: `Email must end with @${domain}`,
+      }),
+  });
+
+  const signUpSchema2Zod = z
+    .object({
+      password: z.string({}).min(6, {
+        message: "Password must be at least 6 characters",
+      }),
+      confirmPassword: z.string().min(6, {
+        message: "Password must be at least 6 characters",
+      }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Passwords don't match",
+      path: ["confirmPassword"],
+    });
+
+  return { signUpSchema1, signUpSchema2, signUpSchema1Zod, signUpSchema2Zod };
 };
 
 export const validateCreateTeam = () => {

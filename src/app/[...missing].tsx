@@ -10,7 +10,7 @@ export default function NotFoundScreen() {
           This screen doesn't exist.
         </Text>
 
-        <Link href="/" className="mt-3 py-3">
+        <Link href="/school" className="mt-3 py-3">
           <Text className="text-md text-primary-light dark:text-primary-dark">
             Go to home screen!
           </Text>

@@ -8,6 +8,17 @@ import {
 import { cn } from "@/lib/utils";
 import { Fixture, FixtureType } from "../games/fixtures/fixture-items";
 
+function sortArrayByDate(array: any) {
+  return array.sort((a: any, b: any) => {
+    // Convert date strings to Date objects
+    const dateA = new Date(a.isoDate).getTime();
+    const dateB = new Date(b.isoDate).getTime();
+
+    // Compare the dates
+    return dateA - dateB;
+  });
+}
+
 export const FixturesModal = ({
   isOpen,
   onClose,
@@ -17,9 +28,12 @@ export const FixturesModal = ({
 }: GeneralModal) => {
   // Sort Fixtures
   const sortedFixtures = buildFixtures(fixtures);
+  const f = sortArrayByDate(sortedFixtures);
+
+  // console.log("Sorted Fixtures", sortedFixtures);
 
   // Sort Fixtures by Date
-  const fixtureBins = sortFixturesByDate(sortedFixtures);
+  const fixtureBins = sortFixturesByDate(f);
 
   const isLastFixture = (fixture: FixtureType) => {
     const lastFixture = sortedFixtures[sortedFixtures.length - 1];
@@ -33,7 +47,7 @@ export const FixturesModal = ({
       visible={isOpen}
       onRequestClose={() => onClose(false)}
       presentationStyle="formSheet"
-      className=""
+      className="flex flex-1"
     >
       <View
         className="
@@ -60,7 +74,7 @@ export const FixturesModal = ({
               {title}
             </Text>
           )}
-          contentContainerClassName="flex flex-1 w-full gap-2 bg-background-light dark:bg-background-dark"
+          contentContainerClassName=" w-full gap-2 bg-background-light dark:bg-background-dark"
         />
       </View>
     </Modal>

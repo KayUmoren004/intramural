@@ -38,7 +38,7 @@ export default function App() {
     );
 
   if (isError) {
-    console.log("Error @Login: ", error);
+    console.log("Error @School: ", error);
     return (
       <View className="bg-background-light dark:bg-background-dark flex-1 items-center justify-center">
         <Text className="text-text-light dark:text-text-dark">

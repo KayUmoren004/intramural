@@ -3,7 +3,15 @@ import { Team } from "../../lib/types/entities";
 
 export type NewTeam = Omit<
   Team,
-  "id" | "wins" | "losses" | "ties" | "captain" | "players" | "league" | "sport"
+  | "id"
+  | "wins"
+  | "losses"
+  | "ties"
+  | "captain"
+  | "players"
+  | "league"
+  | "sport"
+  | "attendance"
 >;
 export type UpdateTeam = Partial<Team>;
 

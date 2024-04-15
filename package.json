@@ -11,6 +11,7 @@
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
     "@hookform/resolvers": "^3.3.4",
+    "@radix-ui/react-accordion": "^1.1.2",
     "@react-native-picker/picker": "^2.6.1",
     "@react-navigation/material-top-tabs": "^6.6.13",
     "@rneui/base": "^4.0.0-rc.8",
@@ -26,6 +27,7 @@
     "expo": "^50.0.1",
     "expo-asset": "~9.0.2",
     "expo-cached-image": "^50.0.6",
+    "expo-checkbox": "~2.7.0",
     "expo-constants": "~15.4.2",
     "expo-file-system": "~16.0.8",
     "expo-font": "^11.10.2",

@@ -30,7 +30,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { MoveRight } from "lucide-react-native";
 import { cn } from "@/lib/utils";
 import { buildFixture } from "@/hooks/fixture/fixture-utils";
-import { MiniFixture } from "../../league/[league]/[leagueId]/imports";
+import { MiniFixture } from "@/components/games/fixtures/fixture-items";
+import { Roster } from "@/components/games/tabs/game-roster";
 
 type IndexProps = {};
 
@@ -147,7 +148,7 @@ const Index = ({}: IndexProps) => {
       {selectedTab === "info" && (
         <View
           className="
-      flex flex-1 bg-background-light dark:bg-background-dark w-full gap-2 px-4 "
+      flex flex-1 bg-background-light dark:bg-background-dark w-full gap-4 px-4 "
         >
           <InformationComponent game={game} header="Fixture" />
           <InformationComponent
@@ -166,6 +167,7 @@ const Index = ({}: IndexProps) => {
           <InformationComponent game={game} header="Team" />
         </View>
       )}
+      {selectedTab === "roster" && <Roster game={game} />}
     </>
   );
 };
@@ -267,18 +269,7 @@ const FixtureComponent = ({ game }: { game: Game | undefined }) => {
 
   const fixture = buildFixture(game.fixture);
 
-  console.log("Fixture", fixture);
-
-  return <MiniFixture {...fixture} />;
-
-  // return (
-  //   <View className="flex-row items-center justify-start gap-2">
-  //     <MaterialIcons name="sports-soccer" size={24} color="black" />
-  //     <Text className="text-white dark:text-black font-bold">
-  //       {game.id}
-  //     </Text>
-  //   </View>
-  // );
+  return <MiniFixture {...fixture} full />;
 };
 
 const componentMap: {

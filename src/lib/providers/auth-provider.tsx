@@ -1,23 +1,34 @@
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useStorageState } from "../../hooks/useStorageState";
-import { useLogin } from "../../hooks/authentication/useAuthentication";
+import {
+  useLogin,
+  useRegister,
+} from "../../hooks/authentication/useAuthentication";
 import { Alert, View, Text } from "react-native";
 import { router, useRouter } from "expo-router";
-import { JWT, Session } from "../../hooks/authentication/authentication";
+import {
+  JWT,
+  Register,
+  Session,
+} from "../../hooks/authentication/authentication";
 import { BACKEND_URL } from "../../config/constants";
 import * as SecureStore from "expo-secure-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetUser } from "@/hooks/user/useUser";
 import Loading from "@/components/ui/Loading";
 import { Image } from "expo-image";
+import { User } from "../types/entities";
+import * as FileSystem from "expo-file-system";
 
 export const AuthContext = createContext<{
+  signUp: (data: Register) => void;
   signIn: (email: string, password: string) => void;
   signOut: () => void;
   invalidate: () => void;
   session?: Session | null;
   isLoading: boolean;
 }>({
+  signUp: () => null,
   signIn: () => null,
   signOut: () => null,
   invalidate: () => null,
@@ -64,6 +75,8 @@ async function refreshToken(
 
 export function SessionProvider(props: React.PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
+  const [tokenRefreshed, setTokenRefreshed] = useState(false);
+  const [signUpData, setSignUpData] = useState<Register | null>(null);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -75,7 +88,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
     isLoading: userLoading,
     isError,
     error,
-  } = useGetUser(userId ?? "");
+  } = useGetUser(userId ?? "", tokenRefreshed);
 
   // Return to login
   const Invalidate = async () => {
@@ -100,6 +113,50 @@ export function SessionProvider(props: React.PropsWithChildren) {
 
       // Navigate to dashboard
       router.replace(`/(protected)/${slug}/dashboard`);
+    },
+  });
+
+  // Sign Up
+  const appSignUp = useRegister({
+    onError: (error) => {
+      Alert.alert("Login Error", error.message);
+    },
+    onSuccess: async (data) => {
+      console.log(data);
+
+      if (signUpData && signUpData?.profilePhoto) {
+        try {
+          const response = await FileSystem.uploadAsync(
+            `${BACKEND_URL}/user/photo/${signUpData?.email}`,
+            signUpData?.profilePhoto.uri,
+            {
+              fieldName: "photo",
+              httpMethod: "POST",
+              uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+              headers: {},
+            }
+          );
+
+          console.log("Image Response: ", response);
+
+          if (response.status !== 201) {
+            const data = await JSON.parse(response.body);
+            console.log("Error: ", data);
+            throw new Error(data.message);
+          } else {
+            const data = await JSON.parse(response.body);
+            console.log("Data: ", data);
+            queryClient.invalidateQueries();
+            await Image.clearDiskCache();
+            await Image.clearMemoryCache();
+          }
+        } catch (error) {
+          console.log("Error: ", error);
+        }
+      }
+
+      // Navigate to login
+      router.replace("/login");
     },
   });
 
@@ -129,6 +186,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
         };
 
         setSession(JSON.stringify(newSession));
+        setTokenRefreshed(true);
       } catch (error: any) {
         console.error("Error refreshing token:", error);
         // Handle token refresh error, like sign out the user
@@ -191,7 +249,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
 
     // Prefetch images
     prefetch();
-  }, [session, setSession]);
+  }, [user]);
 
   if (userLoading) {
     return (
@@ -218,12 +276,16 @@ export function SessionProvider(props: React.PropsWithChildren) {
         signIn: (email: string, password: string) => {
           appSignIn.mutate({ email, password });
         },
+        signUp(data) {
+          setSignUpData(data);
+          appSignUp.mutate(data);
+          // console.log("Signing up: ", data);
+        },
         signOut: async () => {
           await SecureStore.deleteItemAsync("session");
           await SecureStore.deleteItemAsync("school");
           setSession(null);
           await Invalidate();
-          // router.replace("/login");
         },
         invalidate: Invalidate,
         session: session ? JSON.parse(session) : null,

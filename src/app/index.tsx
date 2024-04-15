@@ -18,11 +18,12 @@ const Index = () => {
   }
 
   if (!isLoading) {
-    if (session) {
-      const slug = session.user.school.domain.slug;
+    if (session && session?.user?.school?.domain?.slug) {
+      const slug = session?.user?.school?.domain?.slug;
       return <Redirect href={`/(protected)/${slug}/school`} />;
     } else {
       return <Redirect href="/login" />;
+      // invalidate();
     }
   }
 
