@@ -1,35 +1,24 @@
 import { Pressable } from "react-native";
-import CustomTable from "@/components/custom-table/table";
+
 import {
   type FixtureType,
-  Fixture,
-  MiniFixture,
   FixtureScroll,
   ListFixture,
 } from "@/components/games/fixtures/fixture-items";
 import { ListResult } from "@/components/games/results/result-items";
-import {
-  ListTable,
-  ListTableProps,
-} from "@/components/games/tables/table-items";
-import CreateTeam from "@/components/school/create-team";
-import Table from "@/components/table";
+import { ListTable } from "@/components/games/tables/table-items";
+
 import Loading from "@/components/ui/Loading";
-import PageHeader from "@/components/ui/PageHeader";
-import {
-  buildCaptainFixture,
-  buildFixtures,
-} from "@/hooks/fixture/fixture-utils";
+import { buildCaptainFixture } from "@/hooks/fixture/fixture-utils";
 import { useGetLeagueFixtures } from "@/hooks/fixture/useFixture";
 import { useGetLeague } from "@/hooks/league/useLeague";
 import useColor from "@/lib/colors/useColors";
 import { useSession } from "@/lib/providers/auth-provider";
 import { type League, type Team } from "@/lib/types/entities";
-import { sportHeaders, sporttable } from "@/lib/types/headers";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { MoveRight } from "lucide-react-native";
+import { EllipsisVertical, MoveRight } from "lucide-react-native";
 import { useState } from "react";
 import {
   Text,
@@ -37,7 +26,6 @@ import {
   View,
   Modal,
   ScrollView,
-  Animated,
   SafeAreaView,
   Dimensions,
 } from "react-native";
@@ -48,6 +36,22 @@ import { useRefetchOnFocus } from "@/hooks/useRefectOnFocus";
 import { FixturesModal } from "@/components/league/league-fixtures-modal";
 import { ResultsModal } from "@/components/league/league-results-modal";
 import { TablesModal } from "@/components/league/league-tables-modal";
+import { JoinTeam } from "@/components/school/join-team";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import TeamActions from "@/components/team/actions/team-actions";
 
 type IndexProps = {};
 
@@ -73,13 +77,24 @@ const Index = ({}: IndexProps) => {
   const { session } = useSession();
   const { replace, push } = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
+  const [type, setType] = useState<"create" | "join">("create");
+
+  const [join, setJoin] = useState(false);
 
   const { BACKGROUND, PRIMARY, TEXT } = useColor();
+
+  // Handle modal open
+  const openModal = (type: "create" | "join") => {
+    setType(type);
+    setModalOpen(true);
+  };
 
   // Modals
   const [fixtureModal, setFixtureModal] = useState(false);
   const [tableModal, setTableModal] = useState(false);
   const [resultModal, setResultModal] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [openSub, setOpenSub] = useState(false);
 
   const {
     data: leagueData,
@@ -142,6 +157,9 @@ const Index = ({}: IndexProps) => {
     teams.find((team) =>
       team?.players?.find((player) => player?.userId === session?.user?.id)
     );
+
+  console.log("Team: ", teams);
+
   const teamId = team?.id;
 
   // Find the standings for the current team
@@ -176,7 +194,11 @@ const Index = ({}: IndexProps) => {
         : sortedFixtures[previousFixtureIndex]
       : null;
 
-  const hasTeam = team?.captainId === session?.user?.id;
+  const hasTeam =
+    team?.captainId === session?.user?.id ||
+    team?.players.find((player) => player?.userId === session?.user?.id);
+
+  console.log("Has Team: ", team);
 
   return (
     <>
@@ -262,12 +284,32 @@ const Index = ({}: IndexProps) => {
               Teams
             </Text>
             {!hasTeam && (
-              <TouchableOpacity
-                className="p-1 border border-primary rounded-lg "
-                onPress={() => setModalOpen(!modalOpen)}
-              >
-                <Text className="text-primary">Create Team</Text>
-              </TouchableOpacity>
+              <DropdownMenu open={open} onOpenChange={setOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost">
+                    <EllipsisVertical />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  // insets={contentInsets}
+                  className="w-fit native:w-fit bg-background dark:bg-background-dark border border-neutral-300 rounded-lg shadow-lg"
+                >
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem onPress={() => openModal("create")}>
+                      <Text className="text-text-light dark:text-text-dark">
+                        Create Team
+                      </Text>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-neutral-300 dark:bg-neutral-600" />
+                    <DropdownMenuItem onPress={() => openModal("join")}>
+                      <Text className="text-text-light dark:text-text-dark">
+                        Join Team
+                      </Text>
+                      <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </View>
           <View className="w-full h-full mt-4">
@@ -290,10 +332,12 @@ const Index = ({}: IndexProps) => {
         className=" bg-background dark:bg-background-dark items-start justify-between w-full"
         presentationStyle="formSheet"
       >
-        <CreateTeam
-          captainId={session?.user?.id ?? ""}
-          leagueId={leagueId}
+        <TeamActions
+          type={type}
+          userId={session?.user?.id ?? ""}
+          leagueId={leagueId as string}
           setModalOpen={setModalOpen}
+          teams={teams}
         />
       </Modal>
       <FixturesModal

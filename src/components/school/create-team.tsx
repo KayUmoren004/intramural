@@ -17,6 +17,23 @@ import { AuthButton } from "@/app/(auth)/components/AuthButton";
 import { useCreateTeam } from "@/hooks/team/useTeam";
 import { useQueryClient } from "@tanstack/react-query";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "../ui/button";
+import { EllipsisVertical } from "lucide-react-native";
+import { Tab } from "../ui/tab";
+
 type CreateTeamProps = {
   captainId: string;
   leagueId: string | undefined;
@@ -26,6 +43,8 @@ type CreateTeamProps = {
 type ValueType = {
   name: string;
   shortName: string;
+  position: string;
+  jerseyNumber: string;
 };
 
 const shortNameSuffix = [];
@@ -33,7 +52,16 @@ const shortNameSuffix = [];
 const defaultValues: ValueType = {
   name: "",
   shortName: "",
+  position: "",
+  jerseyNumber: "",
 };
+
+const positions = [
+  { label: "Goalkeeper", value: "Goalkeeper" },
+  { label: "Defender", value: "Defender" },
+  { label: "Midfielder", value: "Midfielder" },
+  { label: "Forward", value: "Forward" },
+];
 
 const CreateTeam = ({ captainId, leagueId, setModalOpen }: CreateTeamProps) => {
   const color = useColor();
@@ -41,17 +69,24 @@ const CreateTeam = ({ captainId, leagueId, setModalOpen }: CreateTeamProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
+  const [open, setOpen] = useState<boolean>(false);
+  const [selected, setSelected] = useState<string>(positions[0].value);
+
   // Form
   const {
     control,
     setFocus,
     handleSubmit,
     formState: { errors, isDirty, isValid },
+    setValue,
+    watch,
   } = useForm({
     defaultValues,
     resolver: zodResolver(createTeamZod),
     mode: "onChange",
   });
+
+  console.log("Watch: ", watch());
 
   const createTeam = useCreateTeam({
     onSuccess: (data) => {
@@ -70,7 +105,7 @@ const CreateTeam = ({ captainId, leagueId, setModalOpen }: CreateTeamProps) => {
 
   // Submit Flow
   const SubmitFlow = async (values: ValueType) => {
-    const { name, shortName } = values;
+    const { name, shortName, jerseyNumber, position } = values;
 
     setLoading(true);
 
@@ -81,6 +116,8 @@ const CreateTeam = ({ captainId, leagueId, setModalOpen }: CreateTeamProps) => {
         captainId,
         logoUrl: "",
         shortName,
+        jerseyNumber,
+        position,
       });
     } catch (error: any) {
       console.log("Error @Create-Team.SubmitFlow: ", error);
@@ -91,58 +128,71 @@ const CreateTeam = ({ captainId, leagueId, setModalOpen }: CreateTeamProps) => {
 
   if (!leagueId) return null;
   return (
-    <SafeAreaView className="flex flex-1 items-start justify-between bg-background-light dark:bg-background-dark p-2">
-      {/* Header */}
-      <View className="p-6 w-full flex flex-row items-start justify-between">
-        <Text className="text-text-light dark:text-text-dark font-bold text-2xl">
-          Create a Team
+    <View className="flex flex-1 w-full p-3 gap-2">
+      {/* Team Name */}
+      <AuthInput
+        config={{
+          placeholder: "Team Name",
+          textContentType: "name",
+          keyboardType: "default",
+        }}
+        control={control}
+        name="name"
+      />
+
+      {/* Team Short Name */}
+      <AuthInput
+        config={{
+          placeholder: "Short Name",
+          textContentType: "name",
+          keyboardType: "default",
+          maxLength: 3,
+        }}
+        control={control}
+        name="shortName"
+        iconsHidden={true}
+      />
+
+      {/* Jersey  Number */}
+      <AuthInput
+        config={{
+          placeholder: "Jersey Number",
+          textContentType: "name",
+          keyboardType: "number-pad",
+          maxLength: 2,
+        }}
+        control={control}
+        name="jerseyNumber"
+      />
+
+      <View>
+        {/* Positions */}
+        <Text className="text-text-light dark:text-text-dark text-lg font-bold">
+          Select Position:
         </Text>
-
-        <TouchableOpacity onPress={() => setModalOpen(false)}>
-          <Feather name="x" size={24} color={color.ERROR} />
-        </TouchableOpacity>
+        <Tab
+          selectedTab={selected}
+          setSelectedTab={(val) => {
+            setSelected(val);
+            setValue("position", val);
+          }}
+          tabList={positions}
+          containerClassName="rounded-lg bg-white dark:bg-black"
+        />
       </View>
 
-      {/* Body */}
-      <View className="flex flex-1 w-full p-3 ">
-        {/* Team Name */}
-        <AuthInput
-          config={{
-            placeholder: "Team Name",
-            textContentType: "name",
-            keyboardType: "default",
-          }}
-          control={control}
-          name="name"
-        />
-        {/* Spacer */}
-        <View style={{ height: 10 }} />
-
-        {/* Team Short Name */}
-        <AuthInput
-          config={{
-            placeholder: "Short Name",
-            textContentType: "name",
-            keyboardType: "default",
-            maxLength: 3,
-          }}
-          control={control}
-          name="shortName"
-        />
-
-        <View>
-          {/* Submit */}
-          {loading && <Loading />}
-          {!loading && (
-            <AuthButton
-              onPress={handleSubmit(SubmitFlow)}
-              label="Create Team"
-              disabled={!(isDirty && isValid)}
-            />
-          )}
-        </View>
+      <View>
+        {/* Submit */}
+        {loading && <Loading />}
+        {!loading && (
+          <AuthButton
+            onPress={handleSubmit(SubmitFlow)}
+            label="Create Team"
+            disabled={!(isDirty && isValid)}
+          />
+        )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

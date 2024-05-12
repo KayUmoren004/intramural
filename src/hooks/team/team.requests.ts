@@ -12,7 +12,10 @@ export type NewTeam = Omit<
   | "league"
   | "sport"
   | "attendance"
->;
+> & {
+  jerseyNumber: string;
+  position: string;
+};
 export type UpdateTeam = Partial<Team>;
 
 export const team = {
@@ -28,4 +31,9 @@ export const team = {
     requests.del<any>(`/team/delete/${leagueId}/${teamId}`),
   updateTeam: (team: any, leagueId: string, teamId: string): Promise<Team> =>
     requests.patch<any>(`/team/update/${leagueId}/${teamId}`, team),
+  joinTeam: (body: any): Promise<Team> =>
+    requests.post<any>(
+      `/team/join/${body.leagueId}/${body.teamId}/${body.userId}`,
+      body
+    ),
 };

@@ -145,6 +145,7 @@ const Login = ({}: LoginProps) => {
                   placeholder: "Password",
                   textContentType: "password",
                   keyboardType: "default",
+                  secureTextEntry: true,
                 }}
                 control={control}
                 name="password"

@@ -63,16 +63,6 @@ PickerProps) => {
   return (
     <SafeAreaView className="flex-1 justify-between bg-background-light dark:bg-background-dark">
       <View className="flex flex-col items-start">
-        {/* Top */}
-        {/* <View className="flex-row justify-between items-center w-full border-b dark:border-white/20 px-5 py-2.5">
-          <Text className="text-text-light dark:text-text-dark text-3xl font-bold text-center">
-            {message}
-          </Text>
-          <TouchableOpacity onPress={() => close()}>
-            
-            <Feather name="x" size={24} color={Colors.ERROR} />
-          </TouchableOpacity>
-        </View> */}
         {/* Search Bar */}
         <View className="flex flex-row justify-between items-center w-full border-b dark:border-white/20 px-5 py-2.5 h-14">
           <TextInput

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Pressable, View, Text, StyleSheet } from "react-native";
 
 type TabItem = {
@@ -9,12 +10,21 @@ type TabProp = {
   selectedTab: string;
   setSelectedTab: (value: string) => void;
   tabList: TabItem[];
+  containerClassName?: string;
 };
 
-export const Tab = ({ selectedTab, setSelectedTab, tabList }: TabProp) => {
+export const Tab = ({
+  selectedTab,
+  setSelectedTab,
+  tabList,
+  containerClassName,
+}: TabProp) => {
   return (
     <View
-      className="w-full items-center justify-evenly gap-4 bg-primary-light dark:bg-primary-dark p-2 mb-4"
+      className={cn(
+        "w-full items-center justify-evenly gap-4 bg-primary-light dark:bg-primary-dark p-2 mb-4",
+        containerClassName
+      )}
       style={styles.container}
     >
       {tabList.map((tab) => {

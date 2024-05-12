@@ -48,6 +48,27 @@ export const useCreateTeam = ({
   });
 };
 
+// Join a Team
+export const useJoinTeam = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: any, variables: any, context: any) => void;
+  onError?: (error: any, variables: any, context: any) => void;
+}) => {
+  return useMutation({
+    mutationFn: (body: {
+      teamId: string;
+      leagueId: string;
+      userId: string;
+      jerseyNumber: string;
+      position: string;
+    }) => team.joinTeam(body),
+    onSuccess,
+    onError,
+  });
+};
+
 // Delete a Team
 export const useDeleteTeam = ({
   onSuccess,

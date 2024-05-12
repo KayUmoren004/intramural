@@ -135,3 +135,14 @@ export const validateCreateTeam = () => {
 
   return { createTeamZod };
 };
+
+export const validateJoinTeam = () => {
+  const joinTeamZod = z.object({
+    userId: z.string().min(1),
+    teamId: z.string().min(1),
+    position: z.string().min(1),
+    jerseyNumber: z.string().min(1),
+  });
+
+  return { joinTeamZod };
+};

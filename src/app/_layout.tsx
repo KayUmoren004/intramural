@@ -9,20 +9,24 @@ import { useColorScheme } from "nativewind";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider } from "@/lib/providers/auth-provider";
 import { Image } from "expo-image";
+import { PortalHost } from "@/components/primitives/portal";
 
 const queryClient = new QueryClient();
 
 const Layout = () => {
   const { colorScheme } = useColorScheme();
   return (
-    <QueryClientProvider client={queryClient}>
-      <SessionProvider>
-        <SafeAreaProvider>
-          <Slot />
-          <StatusBar style={colorScheme === "light" ? "dark" : "light"} />
-        </SafeAreaProvider>
-      </SessionProvider>
-    </QueryClientProvider>
+    <>
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <SafeAreaProvider>
+            <Slot />
+            <StatusBar style={colorScheme === "light" ? "dark" : "light"} />
+          </SafeAreaProvider>
+        </SessionProvider>
+      </QueryClientProvider>
+      <PortalHost />
+    </>
   );
 };
 

@@ -12,10 +12,12 @@ const AuthInput = ({
   name,
   control,
   config,
+  iconsHidden,
 }: {
   name: string;
   control: any;
   config?: AuthInputProps;
+  iconsHidden?: boolean;
 }) => {
   const {
     field,
@@ -89,8 +91,8 @@ const AuthInput = ({
         borderBottomWidth: 1,
       }}
       autoCapitalize="none"
-      leftIcon={leftIconMap[name]}
-      rightIcon={rightIconMap[name]}
+      leftIcon={iconsHidden ? leftIconMap[name] : undefined}
+      rightIcon={iconsHidden ? rightIconMap[name] : undefined}
       {...config}
     />
   );
